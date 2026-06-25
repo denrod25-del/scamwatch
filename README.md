@@ -55,7 +55,7 @@ ScamWatch/
 
 ## Quick start
 
-> Prerequisites: Node ≥ 20.11 (`.nvmrc`), npm 10+, and the [Supabase CLI](https://supabase.com/docs/guides/cli).
+> Prerequisites: Node ≥ 22 (`.nvmrc` — required for native WebSocket used by the Supabase client), npm 10+, and the [Supabase CLI](https://supabase.com/docs/guides/cli).
 
 ```bash
 # 1. Install dependencies

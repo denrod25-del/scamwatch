@@ -5,7 +5,7 @@
   "description": "ScamWatch — public-benefit consumer scam intelligence platform. Know Before You Click.",
   "license": "AGPL-3.0-or-later",
   "engines": {
-    "node": ">=20.11.0"
+    "node": ">=22.0.0"
   },
   "packageManager": "npm@10.8.2",
   "scripts": {

@@ -12,7 +12,7 @@ Thank you for helping build consumer protection infrastructure. ScamWatch exists
 ## Development setup
 
 ```bash
-nvm use                  # Node version from .nvmrc (>= 20.11)
+nvm use                  # Node version from .nvmrc (>= 22)
 npm install
 cp .env.example .env.local   # fill in Supabase + OpenAI keys
 npm run db:start && npm run db:reset
