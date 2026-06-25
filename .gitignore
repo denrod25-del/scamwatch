@@ -28,9 +28,6 @@ next-env.d.ts
 .env*.local
 .env.production
 
-# generated types
-src/types/database.types.ts
-
 # misc
 .DS_Store
 *.pem
