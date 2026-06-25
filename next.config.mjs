@@ -7,10 +7,8 @@ const nextConfig = {
   poweredByHeader: false,
   // Pin file-tracing to this project (a lockfile exists higher up the tree).
   outputFileTracingRoot: dirname(fileURLToPath(import.meta.url)),
-  experimental: {
-    // Server Actions are enabled by default in Next 15; typed routes aid the route map in Vol 12.
-    typedRoutes: true,
-  },
+  // Typed routes aid the Vol 12 route map (top-level since Next 15.1).
+  typedRoutes: true,
   // Security headers — baseline; full CSP is owned by Vol 14 (SEC-14) and tightened in middleware.
   async headers() {
     return [

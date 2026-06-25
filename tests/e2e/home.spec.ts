@@ -6,7 +6,8 @@ test('home page loads with the search entry and the not-legal-advice disclaimer'
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText(/know before you click/i);
   await expect(page.getByRole('searchbox')).toBeVisible();
-  await expect(page.getByText(/not legal advice/i)).toBeVisible();
+  // The disclaimer appears in both the hero and the footer — assert at least one.
+  await expect(page.getByText(/not legal advice/i).first()).toBeVisible();
 });
 
 test('@a11y the skip link is the first focusable element', async ({ page }) => {
