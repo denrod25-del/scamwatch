@@ -1,7 +1,10 @@
 'use server';
 
+import { headers } from 'next/headers';
+
 import { createAdminClient } from '@/lib/supabase/admin';
 import { submitReport } from '@/lib/reports/submit';
+import { clientIp, enforceRateLimit, RateLimitError } from '@/lib/reports/rateLimit';
 import type { SubmitState } from '@/lib/reports/types';
 
 const BUCKET = 'report-media';
@@ -35,6 +38,10 @@ export async function submitReportAction(
   try {
     const admin = createAdminClient();
 
+    const h = await headers();
+    const ip = clientIp(h.get('x-forwarded-for'), h.get('x-real-ip'));
+    await enforceRateLimit(admin, `report:${ip}`);
+
     const mediaPaths: string[] = [];
     const files = formData
       .getAll('screenshot')
@@ -54,8 +61,14 @@ export async function submitReportAction(
       { getClient: async () => admin },
     );
     return { ok: true, reportId: report.id };
-  } catch {
-    // TODO(Vol 14): rate-limit + abuse/poisoning controls on this public write path.
+  } catch (e) {
+    if (e instanceof RateLimitError) {
+      return {
+        ok: false,
+        error:
+          'You’ve submitted several reports recently. Please wait a few minutes and try again.',
+      };
+    }
     return { ok: false, error: 'Something went wrong submitting your report. Please try again.' };
   }
 }
