@@ -17,7 +17,8 @@ const live = Boolean(url && serviceKey && anonKey);
 describe.skipIf(!live)('RLS policies (anon vs service role)', () => {
   let admin: SupabaseClient;
   let anon: SupabaseClient;
-  const ids: { published?: string; unpublished?: string } = {};
+  const ids: { published?: string; unpublished?: string; entity?: string } = {};
+  const entityValue = `+1999000${String(Date.now()).slice(-4)}`;
 
   beforeAll(async () => {
     admin = createClient(url as string, serviceKey as string, { auth: { persistSession: false } });
@@ -40,11 +41,29 @@ describe.skipIf(!live)('RLS policies (anon vs service role)', () => {
         .single(),
     );
     ids.unpublished = unpublished.id;
+
+    const entity = must<{ id: string }>(
+      await admin
+        .from('entities')
+        .insert({ type: 'phone', value_canonical: entityValue })
+        .select('id')
+        .single(),
+    );
+    ids.entity = entity.id;
+
+    // Link the same entity to both the published and the unpublished report.
+    await admin
+      .from('report_entities')
+      .insert({ report_id: ids.published, entity_id: ids.entity, confidence: 0.9 });
+    await admin
+      .from('report_entities')
+      .insert({ report_id: ids.unpublished, entity_id: ids.entity, confidence: 0.9 });
   });
 
   afterAll(async () => {
     if (ids.published) await admin.from('reports').delete().eq('id', ids.published);
     if (ids.unpublished) await admin.from('reports').delete().eq('id', ids.unpublished);
+    if (ids.entity) await admin.from('entities').delete().eq('id', ids.entity);
   });
 
   it('anon CAN read a published report', async () => {
@@ -76,5 +95,23 @@ describe.skipIf(!live)('RLS policies (anon vs service role)', () => {
       summary: 's',
     });
     expect(error).not.toBeNull();
+  });
+
+  it('anon CAN read report→entity links for a published report (community signal)', async () => {
+    const { data } = await anon
+      .from('report_entities')
+      .select('report_id')
+      .eq('entity_id', ids.entity)
+      .eq('report_id', ids.published);
+    expect(data?.length).toBe(1);
+  });
+
+  it('anon CANNOT read report→entity links for an unpublished report', async () => {
+    const { data } = await anon
+      .from('report_entities')
+      .select('report_id')
+      .eq('entity_id', ids.entity)
+      .eq('report_id', ids.unpublished);
+    expect(data?.length ?? 0).toBe(0);
   });
 });
