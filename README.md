@@ -12,7 +12,7 @@ A public-benefit consumer scam intelligence platform — helping people **identi
 
 ---
 
-> **Status:** Pre-alpha scaffold. This repository contains the full Product Requirements Document (`docs/prd/`) and an application skeleton aligned to it. It is not yet a running product.
+> **Status:** Pre-alpha. Live preview: **[scamwatch-seven.vercel.app](https://scamwatch-seven.vercel.app)** (deploys on every push). This repository contains the full Product Requirements Document (`docs/prd/`) and an application skeleton aligned to it. Search runs end-to-end but returns "No Signal" until Supabase + OpenAI environment variables are configured in Vercel.
 
 ## What this is
 
