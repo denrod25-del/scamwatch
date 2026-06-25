@@ -3,20 +3,56 @@
 @tailwind utilities;
 
 /*
- * ScamWatch token map — Volume 7 (Design System), §17.
- * Light theme is :root; dark theme is [data-theme="dark"]. Switching themes
- * toggles a single attribute with no JS repaint (DS-7.15). Components reference
- * the semantic --color-* tokens (via Tailwind), never the raw --swatch-* palette.
+ * ScamWatch token map — Volume 7 (Design System), cyber re-skin.
+ * Default theme is a dark "cybersecurity" palette (:root). A readable light theme
+ * is preserved under [data-theme='light'] for users who prefer it. Components
+ * reference the semantic --color-* tokens; neon/glass treatments live in the
+ * component layer below. Body text stays high-contrast (WCAG 2.2 AA) — neon is
+ * used only for accents, borders, and glows, never for essential reading text.
  */
 
 :root {
-  /* Typography families (DS-7.3) */
+  color-scheme: dark;
+
+  /* Typography */
   --font-sans:
     ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', serif;
-  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  --font-mono:
+    var(--font-mono-web), ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  --font-display: var(--font-display-web), var(--font-sans);
 
-  /* Semantic colors — LIGHT (DS-7.2). Contrast ratios documented in Vol 7. */
+  /* Cyber dark — DEFAULT. Contrast vs --color-bg noted. */
+  --color-bg: #070b14;
+  --color-surface: #0d1424;
+  --color-surface-muted: #0a0f1c;
+  --color-border: #1c2a45;
+  --color-border-strong: #2c426b;
+  --color-text: #e6f0ff; /* ~16:1 */
+  --color-text-muted: #a6b8d6; /* ~8:1 */
+  --color-text-subtle: #7990b2; /* ~5:1 */
+  --color-brand: #22d3ee; /* neon cyan, ~9:1 */
+  --color-brand-contrast: #03121a; /* on cyan buttons */
+  --color-accent: #c084fc; /* violet — sparing cyber duotone glints */
+  --color-info-fg: #67e8f9;
+  --color-info-bg: #082530;
+  --color-caution-fg: #fbbf24;
+  --color-caution-bg: #2a2207;
+  --color-caution-border: #d9a21b;
+  --color-danger-fg: #fb7185; /* controlled coral — alert, not alarmist */
+  --color-danger-bg: #2a0e16;
+  --color-danger-border: #f43f5e;
+  --color-safe-fg: #34d399;
+  --color-safe-bg: #052e26;
+  --color-safe-border: #10b981;
+  --color-focus: #22d3ee;
+
+  /* Faint HUD grid line. */
+  --grid-line: rgba(120, 160, 220, 0.05);
+}
+
+[data-theme='light'] {
+  color-scheme: light;
   --color-bg: #ffffff;
   --color-surface: #ffffff;
   --color-surface-muted: #f8fafc;
@@ -27,6 +63,7 @@
   --color-text-subtle: #64748b;
   --color-brand: #0e7490;
   --color-brand-contrast: #ffffff;
+  --color-accent: #7c3aed;
   --color-info-fg: #155e75;
   --color-info-bg: #ecfeff;
   --color-caution-fg: #92400e;
@@ -39,32 +76,7 @@
   --color-safe-bg: #f0fdfa;
   --color-safe-border: #0f766e;
   --color-focus: #1d4ed8;
-}
-
-[data-theme='dark'] {
-  /* Semantic colors — DARK (DS-7.2). */
-  --color-bg: #0b1220;
-  --color-surface: #111a2b;
-  --color-surface-muted: #0e1626;
-  --color-border: #27364b;
-  --color-border-strong: #475569;
-  --color-text: #e5edf6;
-  --color-text-muted: #a6b6cb;
-  --color-text-subtle: #7e8fa6;
-  --color-brand: #38bdf8;
-  --color-brand-contrast: #06283a;
-  --color-info-fg: #a5f3fc;
-  --color-info-bg: #0c2a33;
-  --color-caution-fg: #fcd34d;
-  --color-caution-bg: #3a2a06;
-  --color-caution-border: #d97706;
-  --color-danger-fg: #fca5a5;
-  --color-danger-bg: #3a130c;
-  --color-danger-border: #f97316;
-  --color-safe-fg: #5eead4;
-  --color-safe-bg: #06231f;
-  --color-safe-border: #2dd4bf;
-  --color-focus: #60a5fa;
+  --grid-line: rgba(15, 23, 42, 0.04);
 }
 
 @layer base {
@@ -72,20 +84,43 @@
     -webkit-text-size-adjust: 100%;
   }
   body {
+    position: relative;
     background-color: var(--color-bg);
     color: var(--color-text);
     font-family: var(--font-sans);
-    font-size: 1rem; /* ≥16px body (DS-7.3.1) */
+    font-size: 1rem;
     line-height: 1.6;
   }
 
-  /* Visible focus for keyboard users (DS-7.16 / WCAG 2.4.7). */
+  /* Cyber HUD backdrop: layered neon glow + faint grid. Fixed, behind content. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      radial-gradient(1100px 560px at 50% -8%, rgba(34, 211, 238, 0.12), transparent 60%),
+      radial-gradient(820px 480px at 100% 0%, rgba(192, 132, 252, 0.07), transparent 55%),
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size:
+      auto,
+      auto,
+      46px 46px,
+      46px 46px;
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-focus);
     outline-offset: 2px;
   }
 
-  /* Hard reduced-motion contract (DS-7.7.1). */
+  ::selection {
+    background: rgba(34, 211, 238, 0.28);
+    color: #f4fbff;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -95,5 +130,58 @@
       transition-duration: 0.001ms !important;
       scroll-behavior: auto !important;
     }
+  }
+}
+
+@layer components {
+  /* Cyber sectioning + chrome — used alongside the semantic token utilities. */
+  .header-bar {
+    background: color-mix(in srgb, var(--color-bg) 72%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .panel {
+    background: color-mix(in srgb, var(--color-surface) 78%, transparent);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    backdrop-filter: blur(6px);
+  }
+  .panel-hover {
+    transition:
+      border-color 200ms ease,
+      box-shadow 200ms ease,
+      transform 200ms ease;
+  }
+  .panel-hover:hover {
+    border-color: color-mix(in srgb, var(--color-brand) 45%, transparent);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-brand) 22%, transparent),
+      0 0 30px -10px color-mix(in srgb, var(--color-brand) 55%, transparent);
+  }
+
+  .chip-neon {
+    color: var(--color-brand);
+    background: color-mix(in srgb, var(--color-brand) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-brand) 34%, transparent);
+    transition:
+      background-color 200ms ease,
+      box-shadow 200ms ease;
+  }
+  .chip-neon:hover {
+    background: color-mix(in srgb, var(--color-brand) 20%, transparent);
+    box-shadow: 0 0 24px -8px color-mix(in srgb, var(--color-brand) 60%, transparent);
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 0.72rem;
+    color: var(--color-brand);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 22px rgba(34, 211, 238, 0.35);
   }
 }

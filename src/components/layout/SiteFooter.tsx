@@ -4,14 +4,15 @@ export default function SiteFooter(): React.JSX.Element {
   return (
     <footer className="mt-16 border-t border-border bg-surface-muted">
       <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-text-muted">
-        <nav aria-label="Footer" className="flex flex-wrap gap-x-6 gap-y-2">
-          <Link href="/academy" className="hover:text-text">
+        <p className="eyebrow">&#47;&#47; consumer scam intelligence</p>
+        <nav aria-label="Footer" className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+          <Link href="/academy" className="transition-colors duration-fast hover:text-brand">
             Academy
           </Link>
-          <Link href="/transparency" className="hover:text-text">
+          <Link href="/transparency" className="transition-colors duration-fast hover:text-brand">
             Transparency reports
           </Link>
-          <a href="/SECURITY.md" className="hover:text-text">
+          <a href="/SECURITY.md" className="transition-colors duration-fast hover:text-brand">
             Security policy
           </a>
         </nav>
@@ -26,7 +27,7 @@ export default function SiteFooter(): React.JSX.Element {
           </a>
           , or your state Attorney General. ScamWatch is consumer protection, not legal advice.
         </p>
-        <p className="mt-4 text-text-subtle">© 2026 ScamWatch · Know Before You Click.</p>
+        <p className="mt-4 font-mono text-text-subtle">© 2026 ScamWatch · Know Before You Click.</p>
       </div>
     </footer>
   );

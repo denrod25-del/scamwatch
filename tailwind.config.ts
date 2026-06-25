@@ -3,9 +3,8 @@ import type { Config } from 'tailwindcss';
 /**
  * ScamWatch Tailwind theme — implements the Volume 7 (Design System) token map.
  * Components consume SEMANTIC tokens only (color-*, text-*, space-*, radius-*).
- * Raw --swatch-* palette values MUST NOT appear in component code (DS-7.2.1).
  * All semantic colors resolve to CSS variables defined in src/styles/globals.css,
- * so light/dark theming is a single data-attribute toggle with no JS repaint (DS-7.15).
+ * so the cyber-dark default + light theme are a single data-attribute toggle.
  */
 const config: Config = {
   darkMode: ['class', '[data-theme="dark"]'],
@@ -31,7 +30,7 @@ const config: Config = {
           DEFAULT: 'var(--color-brand)',
           contrast: 'var(--color-brand-contrast)',
         },
-        // Verdict / status families — informative, never fear-mongering (DS-7.2, DS-7.14).
+        accent: 'var(--color-accent)',
         info: { fg: 'var(--color-info-fg)', bg: 'var(--color-info-bg)' },
         safe: {
           fg: 'var(--color-safe-fg)',
@@ -54,6 +53,7 @@ const config: Config = {
         sans: 'var(--font-sans)',
         serif: 'var(--font-serif)',
         mono: 'var(--font-mono)',
+        display: 'var(--font-display)',
       },
       fontSize: {
         xs: ['0.75rem', { lineHeight: '1.5', fontWeight: '500' }],
@@ -64,10 +64,9 @@ const config: Config = {
         '2xl': ['1.5625rem', { lineHeight: '1.3', fontWeight: '600' }],
         '3xl': ['1.9375rem', { lineHeight: '1.25', fontWeight: '700' }],
         '4xl': ['2.4375rem', { lineHeight: '1.2', fontWeight: '700' }],
+        '5xl': ['3.0518rem', { lineHeight: '1.1', fontWeight: '700' }],
       },
       spacing: {
-        // 4px base rhythm (DS-7.4). Tailwind's default scale already matches; these
-        // aliases make the named tokens available where the spec references them.
         '0': '0',
         '1': '0.25rem',
         '2': '0.5rem',
@@ -98,8 +97,12 @@ const config: Config = {
         emphasized: 'cubic-bezier(.2,0,0,1)',
         exit: 'cubic-bezier(.4,0,1,1)',
       },
+      boxShadow: {
+        glow: '0 0 26px -8px rgba(34,211,238,0.5)',
+        'glow-strong': '0 0 42px -8px rgba(34,211,238,0.65)',
+      },
       maxWidth: {
-        prose: '70ch', // long-form education line length (DS-7.3.4)
+        prose: '70ch',
       },
       ringColor: {
         focus: 'var(--color-focus)',
