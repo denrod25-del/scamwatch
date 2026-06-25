@@ -1,0 +1,9 @@
+# ScamWatch — public content is meant to be discoverable (incl. by AI answers, Vol 19).
+User-agent: *
+Allow: /
+Disallow: /moderation
+Disallow: /account
+Disallow: /api/
+Disallow: /alerts/settings
+
+Sitemap: https://scamwatch.org/sitemap.xml

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/scamwatch/scamwatch/security/policy
+    about: Please report vulnerabilities privately — see our Security Policy, not a public issue.
+  - name: Report a scam (consumers)
+    url: https://reportfraud.ftc.gov
+    about: If you've encountered a scam, report it to the FTC and verify with official organizations.
+  - name: Questions & discussion
+    url: https://github.com/scamwatch/scamwatch/discussions
+    about: Ask questions and discuss ideas here.

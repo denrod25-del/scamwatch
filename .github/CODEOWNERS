@@ -1,0 +1,14 @@
+# ScamWatch code ownership (placeholder teams).
+# Order matters — the last matching pattern wins.
+
+*                       @scamwatch/maintainers
+
+/docs/prd/              @scamwatch/product
+/src/components/        @scamwatch/frontend
+/src/app/               @scamwatch/frontend
+/src/lib/ai/            @scamwatch/ai
+/supabase/functions/    @scamwatch/ai
+/supabase/              @scamwatch/backend
+/src/lib/supabase/      @scamwatch/backend
+/.github/               @scamwatch/platform
+/SECURITY.md            @scamwatch/platform

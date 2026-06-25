@@ -1,0 +1,12 @@
+node_modules
+.next
+out
+coverage
+playwright-report
+test-results
+package-lock.json
+LICENSE
+src/types/database.types.ts
+docs/prd
+*.sql
+*.toml
