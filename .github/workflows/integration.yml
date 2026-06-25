@@ -1,0 +1,44 @@
+name: Integration
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: integration-${{ github.ref }}
+  cancel-in-progress: true
+
+# Boots a real local Supabase (Postgres) in the runner, applies the migrations +
+# seed, and runs the DB-backed search tests (Vol 15). Separate from the CI workflow
+# so a DB hiccup doesn't gate the fast unit/build checks.
+jobs:
+  search-db:
+    name: Search DB path (local Supabase)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: npm ci
+      - name: Start Supabase (applies migrations + seed)
+        run: supabase start
+      - name: Export Supabase env
+        run: |
+          eval "$(supabase status -o env)"
+          {
+            echo "SUPABASE_URL=$API_URL"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+          } >> "$GITHUB_ENV"
+      - name: Run integration tests
+        run: npm run test:integration
+      - name: Stop Supabase
+        if: always()
+        run: supabase stop
