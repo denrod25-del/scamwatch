@@ -5,5 +5,11 @@
     "deploymentEnabled": {
       "main": true
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/internal/process",
+      "schedule": "0 6 * * *"
+    }
+  ]
 }
