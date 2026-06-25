@@ -29,9 +29,20 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // Touch the session so it refreshes if needed. Authorization itself is enforced
-  // by RLS (Vol 10) and per-route checks, not here.
-  await supabase.auth.getUser();
+  // Touch the session so it refreshes if needed.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Defense in depth: bounce unauthenticated users off staff routes with a real
+  // server-side 307 (the page's requireStaff() does the role check). RLS (Vol 10)
+  // remains the actual data boundary.
+  if (!user && request.nextUrl.pathname.startsWith('/moderation')) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = '/login';
+    loginUrl.search = 'next=/moderation';
+    return NextResponse.redirect(loginUrl);
+  }
 
   return response;
 }
