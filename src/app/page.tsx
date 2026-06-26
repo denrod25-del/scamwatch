@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 import SearchBar from '@/components/ui/SearchBar';
+import ScannerVisual from '@/components/ui/ScannerVisual';
 
 export const metadata: Metadata = {
   title: 'Know Before You Click',
@@ -8,67 +10,123 @@ export const metadata: Metadata = {
     'Check a link, phone number, email, or message against community reports and calibrated signals — then verify with official organizations.',
 };
 
-const FEATURES = [
+const STATS = [
+  { k: 'FREE', v: 'Core education, always' },
+  { k: 'CALIBRATED', v: 'Confidence, never exaggerated' },
+  { k: 'PRIVATE', v: 'We never sell your data' },
+  { k: 'OFFICIAL', v: 'Routed to verified orgs' },
+] as const;
+
+const THREATS = [
   {
-    title: 'Search a signal',
-    body: 'Look up a URL, number, or handle to see community reports and a calibrated verdict.',
-    icon: <path d="M11 4a7 7 0 105.2 11.7L20 19.5 M11 4a7 7 0 010 14" />,
+    slug: 'toll-road-smishing',
+    title: 'Toll-text smishing',
+    desc: 'Fake unpaid-toll texts with look-alike pay links.',
   },
   {
-    title: 'Report a scam',
-    body: 'Share what happened. The wizard is trauma-aware and de-identifies your screenshots.',
-    icon: <path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4zM12 9v4M12 16h.01" />,
+    slug: 'pig-butchering',
+    title: 'Pig-butchering',
+    desc: 'Long-con fake crypto / trading platforms.',
+    featured: true,
   },
   {
-    title: 'Learn the patterns',
-    body: 'The Academy explains how common scams work, so they are easier to spot next time.',
-    icon: <path d="M3 7l9-4 9 4-9 4-9-4zM21 7v6M7 9.5V14c0 1.5 2.2 3 5 3s5-1.5 5-3V9.5" />,
+    slug: 'grandparent-scam',
+    title: 'Grandparent scam',
+    desc: 'Urgent “family emergency” money requests.',
+  },
+  {
+    slug: 'tech-support',
+    title: 'Tech-support',
+    desc: 'Pop-ups and calls claiming your device is infected.',
+  },
+  { slug: 'romance', title: 'Romance scam', desc: 'Online partners who only ever ask for money.' },
+  {
+    slug: 'fake-invoice-bec',
+    title: 'Invoice / BEC',
+    desc: 'Spoofed invoices and changed payment details.',
   },
 ] as const;
 
 export default function HomePage(): React.JSX.Element {
   return (
-    <div className="mx-auto max-w-5xl px-4">
-      <section className="py-16 text-center sm:py-24">
-        <p className="eyebrow">&#47;&#47; real-time scam intelligence</p>
-        <h1 className="text-glow mt-4 font-display text-4xl font-bold tracking-tight text-text sm:text-5xl">
-          Know before you click.
-        </h1>
-        <p className="mx-auto mt-4 max-w-xl text-text-muted">
-          Paste a link, phone number, email, or message. ScamWatch shows what the community has
-          reported and a calibrated read on the risk.
-        </p>
-
-        <div className="mx-auto mt-8 max-w-2xl">
-          <SearchBar action="/search" />
+    <div className="mx-auto max-w-6xl space-y-6 px-4 py-8">
+      {/* HERO */}
+      <section className="frame overflow-hidden p-6 sm:p-10">
+        <div className="grid items-center gap-8 lg:grid-cols-2">
+          <div>
+            <span className="badge-pill">Real-time consumer scam intelligence</span>
+            <h1 className="mt-5 font-display text-3xl font-bold uppercase leading-[1.1] tracking-tight text-text sm:text-4xl">
+              Know before you click.
+            </h1>
+            <p className="mt-4 max-w-md text-text-muted">
+              Paste a link, phone number, email, or message. ScamWatch shows what the community has
+              reported and a calibrated read on the risk — then points you to official help.
+            </p>
+            <div className="mt-7 max-w-lg">
+              <SearchBar action="/search" />
+            </div>
+            <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-text-subtle">
+              <span className="font-mono uppercase tracking-widest text-text-muted">
+                Verify with
+              </span>
+              <span>FTC</span>
+              <span aria-hidden="true">·</span>
+              <span>FBI&nbsp;IC3</span>
+              <span aria-hidden="true">·</span>
+              <span>CFPB</span>
+              <span aria-hidden="true">·</span>
+              <span>State&nbsp;AG</span>
+            </div>
+          </div>
+          <div className="hidden lg:block">
+            <ScannerVisual />
+          </div>
         </div>
-
-        <p className="mt-3 text-sm text-text-subtle">
-          Verify with official organizations. This is consumer protection, not legal advice.
-        </p>
       </section>
 
-      <section className="grid gap-4 pb-20 sm:grid-cols-3">
-        {FEATURES.map((f) => (
-          <article key={f.title} className="panel panel-hover p-5">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface-muted text-brand">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.7}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-                className="h-5 w-5"
-              >
-                {f.icon}
-              </svg>
-            </span>
-            <h2 className="mt-3 font-display text-base font-semibold text-text">{f.title}</h2>
-            <p className="mt-1 text-sm text-text-muted">{f.body}</p>
-          </article>
+      {/* PRINCIPLES BAND (honest — no fabricated metrics) */}
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {STATS.map((s) => (
+          <div key={s.k} className="panel p-5">
+            <p className="font-display text-2xl font-bold tracking-tight text-brand">{s.k}</p>
+            <p className="mt-1 text-sm text-text-muted">{s.v}</p>
+          </div>
         ))}
+      </section>
+
+      {/* WHAT WE CHECK — threat taxonomy bento */}
+      <section className="frame p-6 sm:p-8">
+        <h2 className="text-center font-display text-lg font-bold uppercase tracking-[0.25em] text-text">
+          What we check
+        </h2>
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {THREATS.map((t) => (
+            <Link
+              key={t.slug}
+              href={`/threat/${t.slug}`}
+              className={`panel panel-hover group block p-5 ${
+                'featured' in t ? 'border-safe-border' : ''
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-display text-sm font-semibold text-text">{t.title}</span>
+                <span
+                  className="text-text-subtle transition-colors group-hover:text-brand"
+                  aria-hidden="true"
+                >
+                  ↗
+                </span>
+              </div>
+              <p className="mt-1 text-sm text-text-muted">{t.desc}</p>
+              <p className="mt-3 font-mono text-[0.7rem] uppercase tracking-wider text-text-subtle">
+                {t.slug}
+              </p>
+            </Link>
+          ))}
+        </div>
+        <p className="mt-5 text-center text-sm text-text-subtle">
+          Consumer protection, not legal advice. Always verify with official organizations.
+        </p>
       </section>
     </div>
   );

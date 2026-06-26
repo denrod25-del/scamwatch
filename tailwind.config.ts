@@ -98,8 +98,8 @@ const config: Config = {
         exit: 'cubic-bezier(.4,0,1,1)',
       },
       boxShadow: {
-        glow: '0 0 26px -8px rgba(34,211,238,0.5)',
-        'glow-strong': '0 0 42px -8px rgba(34,211,238,0.65)',
+        glow: '0 0 26px -8px rgba(74,222,128,0.5)',
+        'glow-strong': '0 0 42px -8px rgba(74,222,128,0.65)',
       },
       maxWidth: {
         prose: '70ch',

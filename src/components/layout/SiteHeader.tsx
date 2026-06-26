@@ -30,19 +30,23 @@ export default function SiteHeader(): React.JSX.Element {
   return (
     <header className="header-bar sticky top-0 z-40">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-        <Link href="/" className="flex items-center gap-2">
-          <ShieldIcon className="h-6 w-6 text-brand drop-shadow-[0_0_10px_rgba(34,211,238,0.65)]" />
-          <span className="font-display text-lg font-bold tracking-tight text-text">
-            Scam<span className="text-glow text-brand">Watch</span>
+        <Link
+          href="/"
+          className="flex items-center gap-2 rounded-md border border-border px-2.5 py-1.5"
+        >
+          <ShieldIcon className="h-5 w-5 text-brand" />
+          <span className="font-display text-base font-bold tracking-tight text-text">
+            ScamWatch
           </span>
         </Link>
+
         <nav aria-label="Primary" className="flex items-center gap-1 sm:gap-2">
-          <ul className="hidden items-center gap-1 text-sm sm:flex">
+          <ul className="hidden items-center gap-1 font-mono text-sm md:flex">
             {NAV.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="rounded-md px-2.5 py-1.5 text-text-muted transition-colors duration-fast hover:bg-surface hover:text-brand"
+                  className="rounded-md px-2.5 py-1.5 text-text-muted transition-colors duration-fast hover:text-brand"
                 >
                   {item.label}
                 </Link>
@@ -51,9 +55,15 @@ export default function SiteHeader(): React.JSX.Element {
           </ul>
           <Link
             href="/login"
-            className="chip-neon rounded-md px-3 py-1.5 font-mono text-sm font-medium"
+            className="hidden px-2.5 py-1.5 font-mono text-sm text-text-muted transition-colors duration-fast hover:text-brand sm:inline"
           >
             Sign in
+          </Link>
+          <Link
+            href="/report"
+            className="btn-primary rounded-md px-3.5 py-1.5 font-mono text-sm font-semibold"
+          >
+            Report a scam
           </Link>
         </nav>
       </div>

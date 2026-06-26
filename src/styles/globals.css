@@ -3,52 +3,51 @@
 @tailwind utilities;
 
 /*
- * ScamWatch token map — Volume 7 (Design System), cyber re-skin.
+ * ScamWatch token map — Volume 7 (Design System), cyber re-skin (terminal green).
  * Default theme is a dark "cybersecurity" palette (:root). A readable light theme
- * is preserved under [data-theme='light'] for users who prefer it. Components
- * reference the semantic --color-* tokens; neon/glass treatments live in the
- * component layer below. Body text stays high-contrast (WCAG 2.2 AA) — neon is
- * used only for accents, borders, and glows, never for essential reading text.
+ * is preserved under [data-theme='light']. Components reference the semantic
+ * --color-* tokens; neon/glass/frame treatments live in the component layer.
+ * Body text stays high-contrast (WCAG 2.2 AA) — green/neon is used only for
+ * accents, borders, CTAs, and glows, never for essential reading text.
  */
 
 :root {
   color-scheme: dark;
 
-  /* Typography */
+  /* Typography — mono-forward (terminal) for display + labels, sans for body. */
   --font-sans:
     ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', serif;
   --font-mono:
     var(--font-mono-web), ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
-  --font-display: var(--font-display-web), var(--font-sans);
+  --font-display: var(--font-mono-web), ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
-  /* Cyber dark — DEFAULT. Contrast vs --color-bg noted. */
-  --color-bg: #070b14;
-  --color-surface: #0d1424;
-  --color-surface-muted: #0a0f1c;
-  --color-border: #1c2a45;
-  --color-border-strong: #2c426b;
-  --color-text: #e6f0ff; /* ~16:1 */
-  --color-text-muted: #a6b8d6; /* ~8:1 */
-  --color-text-subtle: #7990b2; /* ~5:1 */
-  --color-brand: #22d3ee; /* neon cyan, ~9:1 */
-  --color-brand-contrast: #03121a; /* on cyan buttons */
-  --color-accent: #c084fc; /* violet — sparing cyber duotone glints */
+  /* Cyber dark — DEFAULT (near-black neutral). Contrast vs --color-bg noted. */
+  --color-bg: #08090d;
+  --color-surface: #0e1014;
+  --color-surface-muted: #0b0c10;
+  --color-border: #1d2128;
+  --color-border-strong: #2c313b;
+  --color-text: #e8ebf0; /* ~16:1 */
+  --color-text-muted: #9aa3b2; /* ~7:1 */
+  --color-text-subtle: #6b7382; /* ~4.6:1 */
+  --color-brand: #4ade80; /* terminal green, ~12:1 */
+  --color-brand-contrast: #04140a; /* dark text on green CTAs */
+  --color-accent: #86efac; /* lighter green, sparing */
   --color-info-fg: #67e8f9;
-  --color-info-bg: #082530;
+  --color-info-bg: #07252b;
   --color-caution-fg: #fbbf24;
   --color-caution-bg: #2a2207;
   --color-caution-border: #d9a21b;
   --color-danger-fg: #fb7185; /* controlled coral — alert, not alarmist */
   --color-danger-bg: #2a0e16;
   --color-danger-border: #f43f5e;
-  --color-safe-fg: #34d399;
-  --color-safe-bg: #052e26;
-  --color-safe-border: #10b981;
-  --color-focus: #22d3ee;
+  --color-safe-fg: #2dd4bf; /* teal — distinct from brand green */
+  --color-safe-bg: #052621;
+  --color-safe-border: #14b8a6;
+  --color-focus: #4ade80;
 
-  /* Faint HUD grid line. */
-  --grid-line: rgba(120, 160, 220, 0.05);
+  --grid-line: rgba(120, 200, 150, 0.045);
 }
 
 [data-theme='light'] {
@@ -61,9 +60,9 @@
   --color-text: #0f172a;
   --color-text-muted: #475569;
   --color-text-subtle: #64748b;
-  --color-brand: #0e7490;
+  --color-brand: #047857;
   --color-brand-contrast: #ffffff;
-  --color-accent: #7c3aed;
+  --color-accent: #059669;
   --color-info-fg: #155e75;
   --color-info-bg: #ecfeff;
   --color-caution-fg: #92400e;
@@ -75,7 +74,7 @@
   --color-safe-fg: #0f766e;
   --color-safe-bg: #f0fdfa;
   --color-safe-border: #0f766e;
-  --color-focus: #1d4ed8;
+  --color-focus: #047857;
   --grid-line: rgba(15, 23, 42, 0.04);
 }
 
@@ -92,7 +91,7 @@
     line-height: 1.6;
   }
 
-  /* Cyber HUD backdrop: layered neon glow + faint grid. Fixed, behind content. */
+  /* Cyber HUD backdrop: faint grid + soft green glow. Fixed, behind content. */
   body::before {
     content: '';
     position: fixed;
@@ -100,15 +99,13 @@
     z-index: -1;
     pointer-events: none;
     background-image:
-      radial-gradient(1100px 560px at 50% -8%, rgba(34, 211, 238, 0.12), transparent 60%),
-      radial-gradient(820px 480px at 100% 0%, rgba(192, 132, 252, 0.07), transparent 55%),
+      radial-gradient(1100px 560px at 50% -10%, rgba(74, 222, 128, 0.1), transparent 60%),
       linear-gradient(var(--grid-line) 1px, transparent 1px),
       linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size:
       auto,
-      auto,
-      46px 46px,
-      46px 46px;
+      44px 44px,
+      44px 44px;
   }
 
   :focus-visible {
@@ -117,8 +114,8 @@
   }
 
   ::selection {
-    background: rgba(34, 211, 238, 0.28);
-    color: #f4fbff;
+    background: rgba(74, 222, 128, 0.3);
+    color: #061a0d;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -134,30 +131,81 @@
 }
 
 @layer components {
-  /* Cyber sectioning + chrome — used alongside the semantic token utilities. */
+  /* Hairline-framed section container (terminal-window feel). */
+  .frame {
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--color-surface) 55%, transparent);
+  }
+
   .header-bar {
-    background: color-mix(in srgb, var(--color-bg) 72%, transparent);
+    background: color-mix(in srgb, var(--color-bg) 78%, transparent);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--color-border);
   }
 
   .panel {
-    background: color-mix(in srgb, var(--color-surface) 78%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 80%, transparent);
     border: 1px solid var(--color-border);
-    border-radius: 14px;
-    backdrop-filter: blur(6px);
+    border-radius: 12px;
   }
   .panel-hover {
     transition:
       border-color 200ms ease,
-      box-shadow 200ms ease,
-      transform 200ms ease;
+      box-shadow 200ms ease;
   }
   .panel-hover:hover {
-    border-color: color-mix(in srgb, var(--color-brand) 45%, transparent);
+    border-color: color-mix(in srgb, var(--color-brand) 50%, transparent);
     box-shadow:
       0 0 0 1px color-mix(in srgb, var(--color-brand) 22%, transparent),
       0 0 30px -10px color-mix(in srgb, var(--color-brand) 55%, transparent);
+  }
+
+  /* Pill badge above the hero headline. */
+  .badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+    border: 1px solid var(--color-border);
+    border-radius: 9999px;
+    padding: 0.3rem 0.7rem;
+  }
+  .badge-pill::before {
+    content: '';
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 9999px;
+    background: var(--color-brand);
+    box-shadow: 0 0 10px 1px color-mix(in srgb, var(--color-brand) 80%, transparent);
+  }
+
+  /* Green-filled primary CTA. */
+  .btn-primary {
+    background: var(--color-brand);
+    color: var(--color-brand-contrast);
+    border: 1px solid var(--color-brand);
+    transition:
+      box-shadow 160ms ease,
+      filter 160ms ease;
+  }
+  .btn-primary:hover {
+    box-shadow: 0 0 26px -6px color-mix(in srgb, var(--color-brand) 70%, transparent);
+    filter: brightness(1.05);
+  }
+  .btn-outline {
+    color: var(--color-text);
+    border: 1px solid var(--color-border-strong);
+    transition:
+      border-color 160ms ease,
+      color 160ms ease;
+  }
+  .btn-outline:hover {
+    border-color: var(--color-brand);
+    color: var(--color-brand);
   }
 
   .chip-neon {
@@ -176,12 +224,12 @@
   .eyebrow {
     font-family: var(--font-mono);
     text-transform: uppercase;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.22em;
     font-size: 0.72rem;
     color: var(--color-brand);
   }
 
   .text-glow {
-    text-shadow: 0 0 22px rgba(34, 211, 238, 0.35);
+    text-shadow: 0 0 22px rgba(74, 222, 128, 0.3);
   }
 }
