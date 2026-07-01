@@ -79,6 +79,34 @@ export default function PrivacyPage(): React.JSX.Element {
             ScamWatch is not directed at children under 13. We actively redact submissions that appear to contain details of minors. We work with elder protection groups in Florida to ensure our reporting paths are accessible and protective of seniors who are disproportionately targeted by utility and toll scams.
           </p>
         </div>
+
+        <div>
+          <h2 className="text-sm font-semibold text-text mb-1">8. Security Standards &amp; Auditing</h2>
+          <p>
+            We implement industry-standard cryptographic practices. All communication with ScamWatch is encrypted via Transport Layer Security (TLS 1.3). Database storage utilizes Row-Level Security (RLS) to enforce data boundaries, and we conduct bi-annual internal security reviews of our ingestion pipelines.
+          </p>
+        </div>
+
+        <div>
+          <h2 className="text-sm font-semibold text-text mb-1">9. Cookies &amp; Analytical Telemetry</h2>
+          <p>
+            ScamWatch does not use tracking cookies or sell your activity data. We collect anonymous, aggregate telemetry regarding route usage to optimize page loads and server resources.
+          </p>
+        </div>
+
+        <div>
+          <h2 className="text-sm font-semibold text-text mb-1">10. Legal Disclosures &amp; Compliance</h2>
+          <p>
+            We cooperate with legal processes when required by law. However, because we strip all personal identification and EXIF data upon ingestion, the data we retain is typically de-identified and aggregate threat data.
+          </p>
+        </div>
+
+        <div>
+          <h2 className="text-sm font-semibold text-text mb-1">11. Florida Sunshine Law &amp; Public Record Exemptions</h2>
+          <p>
+            As a Florida-centric platform, we advocate for consumer safety. We treat user submissions with high confidentiality. We redact sensitive identifiers from reports shared with state agencies to prevent submissions from being subject to unrestricted public records requests that could expose victims.
+          </p>
+        </div>
       </section>
     </div>
   );

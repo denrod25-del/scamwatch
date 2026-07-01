@@ -2,5 +2,5 @@
 Contact: mailto:security@scamwatch.org
 Expires: 2027-01-01T00:00:00.000Z
 Preferred-Languages: en
-Policy: https://scamwatch.org/SECURITY.md
+Policy: https://scamwatch.org/security
 Canonical: https://scamwatch.org/.well-known/security.txt
