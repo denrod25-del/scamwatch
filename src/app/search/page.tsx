@@ -36,30 +36,64 @@ export default async function SearchPage({
 }): Promise<React.JSX.Element> {
   const { q, lose_money, share_pii } = await searchParams;
   const query = (q ?? '').trim();
-  const result = query ? await lookup(query) : null;
+  const isDemo = !query;
 
   const loseMoney = lose_money === 'true';
   const sharePii = share_pii === 'true';
 
+  let result = null;
   let explanation = null;
   let recommendations = null;
   let riskInfo = null;
   let extracted: { type: string; canonical_value: string }[] = [];
 
-  if (result) {
-    explanation = generateExplanation(
-      result.verdict,
-      result.query,
-      result.entityType,
-      result.abstained
-    );
-    recommendations = generateRecommendations(
-      result.verdict,
-      result.entityType,
-      { did_lose_money: loseMoney, did_share_pii: sharePii }
-    );
-    riskInfo = getRiskLevel(result.verdict);
-    extracted = await extractEntitiesHybrid(query);
+  if (!isDemo) {
+    result = await lookup(query);
+    if (result) {
+      explanation = generateExplanation(
+        result.verdict,
+        result.query,
+        result.entityType,
+        result.abstained
+      );
+      recommendations = generateRecommendations(
+        result.verdict,
+        result.entityType,
+        { did_lose_money: loseMoney, did_share_pii: sharePii }
+      );
+      riskInfo = getRiskLevel(result.verdict);
+      extracted = await extractEntitiesHybrid(query);
+    }
+  } else {
+    // Provide a mocked result for the demo scan
+    result = {
+      query: 'sunpass-toll-fees.com',
+      entityType: 'url' as const,
+      verdict: 'Confirmed Reported Scam' as const,
+      confidence: 0.95,
+      reportCount: 48,
+      relatedThreats: [{ slug: 'FL-001', title: 'SunPass Toll Text Scam Alert (Smishing)' }],
+      abstained: false,
+    };
+    explanation = {
+      text: 'This domain (sunpass-toll-fees.com) closely matches verified smishing campaigns impersonating the Florida SunPass toll agency. Senders request payment for fake unpaid toll balances (frequently $4.15) to harvest consumer credit card details.',
+      citations: [
+        { raw_value: 'sunpass-toll-fees.com', resolved_label: 'SunPass Smishing Campaign Indicator' }
+      ]
+    };
+    recommendations = {
+      verify: [
+        { action: 'Official SunPass Portal', url: 'https://www.sunpass.com', org: 'SunPass' },
+        { action: 'File FTC Fraud Report', url: 'https://reportfraud.ftc.gov', org: 'FTC' }
+      ],
+      protect: [
+        { step: 'Do not click links in SMS messages from unrecognized senders.', urgency: 'high' as const },
+        { step: 'If you entered payment info, contact your card issuer immediately to freeze your card.', urgency: 'high' as const },
+        { step: 'Forward suspicious texts to carrier spam reporting line (7726).', urgency: 'medium' as const }
+      ]
+    };
+    riskInfo = { label: 'High' as const, color: 'bg-red-500/10 text-red-500 border-red-500/20' };
+    extracted = [{ type: 'url', canonical_value: 'sunpass-toll-fees.com' }];
   }
 
   return (
@@ -68,6 +102,15 @@ export default async function SearchPage({
         <h1 className="text-2xl font-bold text-text mb-4">Know Before You Click</h1>
         <SearchBar defaultValue={query} />
       </div>
+
+      {isDemo && (
+        <div className="p-4 bg-surface border border-border rounded-md space-y-2 print:hidden">
+          <h2 className="text-sm font-bold text-brand uppercase tracking-wider">Demo Scan Report</h2>
+          <p className="text-xs text-text-muted leading-relaxed">
+            Below is a sample scan report illustrating how the Sentinel Intelligence Engine evaluates a suspicious indicator. Try pasting a link, message, or phone number above to run a live scan.
+          </p>
+        </div>
+      )}
 
       {result ? (
         <div className="space-y-8">
