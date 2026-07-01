@@ -1,3 +1,4 @@
+import React, { Suspense } from 'react';
 import type { Metadata } from 'next';
 
 import SearchBar from '@/components/ui/SearchBar';
@@ -5,6 +6,7 @@ import VerdictCard from '@/components/ui/VerdictCard';
 import VerificationCallout from '@/components/ui/VerificationCallout';
 import EntityChip from '@/components/ui/EntityChip';
 import SearchContextSelector from './SearchContextSelector';
+import SearchActions from './SearchActions';
 import { lookup } from '@/shared/search/lookup';
 import { extractEntitiesHybrid } from '@/shared/entities/extractEntitiesHybrid';
 import { generateExplanation } from '@/shared/search/explain';
@@ -122,7 +124,9 @@ export default async function SearchPage({
 
           {/* Submitter Context Selectors */}
           <div className="print:hidden">
-            <SearchContextSelector />
+            <Suspense fallback={<div className="h-24 animate-pulse rounded-lg bg-surface-muted border border-border" />}>
+              <SearchContextSelector />
+            </Suspense>
           </div>
 
           {/* Verdict Indicator & Risk Level */}
@@ -263,23 +267,7 @@ export default async function SearchPage({
           )}
 
           {/* Action buttons (Print, Share, Save) */}
-          <div className="flex flex-wrap gap-3 pt-4 border-t border-border/40 print:hidden">
-            <button
-              onClick={() => window.print()}
-              className="px-4 py-2 rounded bg-brand text-brand-contrast text-xs font-bold hover:bg-brand/80 transition-colors"
-            >
-              Print Report / Save PDF
-            </button>
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
-                alert('Investigation report link copied to clipboard.');
-              }}
-              className="px-4 py-2 rounded border border-border bg-surface hover:bg-hover text-xs font-semibold text-text transition-colors"
-            >
-              Share Investigation Link
-            </button>
-          </div>
+          <SearchActions />
 
           <div className="print:hidden">
             <VerificationCallout />
