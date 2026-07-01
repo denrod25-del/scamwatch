@@ -1,17 +1,41 @@
 import { NextResponse } from 'next/server';
+import { lookup } from '@/shared/search/lookup';
 
 /**
- * GET /api/v1/search?q= — Vol 11 (API Spec). Stub: returns the canonical error
- * envelope with 501 until the search + AI pipeline is wired (Vol 8).
+ * GET /api/v1/search?q= — Vol 11 (API Spec).
+ * Performs lookup on the query and returns the derived verdict.
  */
-export async function GET(): Promise<NextResponse> {
-  return NextResponse.json(
-    {
-      error: {
-        code: 'not_implemented',
-        message: 'Search is not implemented yet. See PRD Volume 11 (API) and Volume 8 (AI).',
+export async function GET(request: Request): Promise<NextResponse> {
+  const { searchParams } = new URL(request.url);
+  const q = searchParams.get('q');
+
+  if (!q || !q.trim()) {
+    return NextResponse.json(
+      {
+        error: {
+          code: 'validation_failed',
+          message: 'Query parameter "q" is required.',
+        },
       },
-    },
-    { status: 501, headers: { 'X-API-Version': 'v1' } },
-  );
+      { status: 422, headers: { 'X-API-Version': 'v1' } }
+    );
+  }
+
+  try {
+    const result = await lookup(q);
+    return NextResponse.json(
+      { data: result },
+      { status: 200, headers: { 'X-API-Version': 'v1' } }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: {
+          code: 'search_failed',
+          message: 'An error occurred while performing search check.',
+        },
+      },
+      { status: 500, headers: { 'X-API-Version': 'v1' } }
+    );
+  }
 }

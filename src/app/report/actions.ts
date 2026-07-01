@@ -2,10 +2,10 @@
 
 import { headers } from 'next/headers';
 
-import { createAdminClient } from '@/lib/supabase/admin';
-import { submitReport } from '@/lib/reports/submit';
-import { clientIp, enforceRateLimit, RateLimitError } from '@/lib/reports/rateLimit';
-import type { SubmitState } from '@/lib/reports/types';
+import { createAdminClient } from '@/infrastructure/supabase/admin';
+import { submitReport } from '@/shared/reports/submit';
+import { clientIp, enforceRateLimit, RateLimitError } from '@/shared/reports/rateLimit';
+import type { SubmitState } from '@/shared/reports/types';
 
 const BUCKET = 'report-media';
 

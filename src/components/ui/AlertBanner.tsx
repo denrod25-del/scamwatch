@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/utils';
 
 export interface AlertBannerProps {
   tone?: 'info' | 'caution' | 'danger';

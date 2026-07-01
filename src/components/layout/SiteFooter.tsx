@@ -12,9 +12,9 @@ export default function SiteFooter(): React.JSX.Element {
           <Link href="/transparency" className="transition-colors duration-fast hover:text-brand">
             Transparency reports
           </Link>
-          <a href="/SECURITY.md" className="transition-colors duration-fast hover:text-brand">
+          <Link href="/security" className="transition-colors duration-fast hover:text-brand">
             Security policy
-          </a>
+          </Link>
         </nav>
         <p className="mt-4 max-w-prose">
           If you think you have been targeted, verify with official organizations such as the{' '}

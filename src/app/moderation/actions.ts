@@ -2,9 +2,9 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { requireStaff } from '@/lib/auth/session';
-import { createAdminClient } from '@/lib/supabase/admin';
-import { publishReport, rejectReport } from '@/lib/moderation/moderate';
+import { requireStaff } from '@/shared/auth/session';
+import { createAdminClient } from '@/infrastructure/supabase/admin';
+import { publishReport, rejectReport } from '@/shared/moderation/moderate';
 
 export async function approveAction(formData: FormData): Promise<void> {
   const user = await requireStaff();

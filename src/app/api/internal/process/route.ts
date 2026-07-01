@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
-import { createAdminClient } from '@/lib/supabase/admin';
-import { processPendingReports } from '@/lib/reports/processReport';
+import { createAdminClient } from '@/infrastructure/supabase/admin';
+import { processPendingReports } from '@/shared/reports/processReport';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;

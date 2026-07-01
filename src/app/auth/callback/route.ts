@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@/infrastructure/supabase/server';
 
 /**
  * Magic-link callback. Exchanges the code for a session, then (optionally)
@@ -25,7 +25,7 @@ export async function GET(request: Request): Promise<NextResponse> {
         .filter(Boolean);
       if (user?.email && allow.includes(user.email.toLowerCase())) {
         try {
-          const { createAdminClient } = await import('@/lib/supabase/admin');
+          const { createAdminClient } = await import('@/infrastructure/supabase/admin');
           await createAdminClient()
             .from('user_roles')
             .upsert({ user_id: user.id, role: 'admin' }, { onConflict: 'user_id,role' });

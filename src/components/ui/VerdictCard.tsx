@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 import type { Verdict } from '@/types';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/utils';
 import ConfidenceMeter from './ConfidenceMeter';
 
 export interface VerdictCardProps {

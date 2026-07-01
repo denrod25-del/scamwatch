@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 
-import { createAdminClient } from '@/lib/supabase/admin';
-import { submitReport } from '@/lib/reports/submit';
-import { clientIp, enforceRateLimit, RateLimitError } from '@/lib/reports/rateLimit';
+import { createAdminClient } from '@/infrastructure/supabase/admin';
+import { submitReport } from '@/shared/reports/submit';
+import { clientIp, enforceRateLimit, RateLimitError } from '@/shared/reports/rateLimit';
 
 function envelope(code: string, message: string, status: number): NextResponse {
   return NextResponse.json(

@@ -39,11 +39,16 @@ It is governed by nine product principles that every feature is measured against
 ScamWatch/
 ├── docs/
 │   ├── prd/            # Master PRD — 20 volumes + shared context + index (START HERE)
+│   ├── architecture/   # ARCH-001 System Architecture blueprints
+│   ├── operations/     # Engineering Operations & Registries (Sprint 3)
 │   └── notion/         # Notion-import bundle (index + database CSV + import guide)
 ├── src/
 │   ├── app/            # Next.js App Router routes (Vol 12 route map)
 │   ├── components/ui/  # Design-system components (Vol 6 / Vol 7)
-│   ├── lib/            # Supabase + AI clients and helpers (Vol 8 / Vol 13)
+│   ├── modules/        # Domain modules (intelligence, evidence, graph, campaigns)
+│   ├── shared/         # Shared helpers (auth, entities, reports, search)
+│   ├── infrastructure/ # Low-level clients (Supabase, OpenAI APIs)
+│   ├── interfaces/     # Service interface contract files
 │   ├── styles/         # globals.css — Vol 7 token map
 │   └── types/          # Shared + generated DB types
 ├── supabase/
@@ -52,6 +57,43 @@ ScamWatch/
 ├── tests/              # unit (Vitest) · integration · e2e (Playwright) (Vol 15)
 └── .github/            # CI/CD, issue/PR templates, CODEOWNERS (Vol 17)
 ```
+
+## System Architecture
+
+The core of ScamWatch is powered by the **Sentinel Intelligence Engine (SIE)**, decoupled from the Next.js presentation layer:
+
+```mermaid
+graph TD
+    subgraph Client["ScamWatch UI"]
+        Pages[App Pages & Layouts]
+        UI["UI Elements (VerdictCard, SearchBar)"]
+    end
+    
+    subgraph Ingestion["Ingestion Gateway"]
+        API[v1 API Controllers]
+    end
+    
+    subgraph Modules["Core Domain Modules (src/modules/)"]
+        Intel["intelligence (Engine, Pipeline, Objects)"]
+        Ev["evidence (EvidenceNode, EvidenceGraph)"]
+        Reas["reasoning (ReasoningEngine, Trees)"]
+        Graph["graph (Entities, Edges, Snapshots)"]
+        Camp["campaigns (Similarity & Linkage)"]
+    end
+    
+    subgraph Infra["Infrastructure (src/infrastructure/)"]
+        DB[(Supabase PostgreSQL)]
+        AI[OpenAI LLM & Embeddings API]
+    end
+    
+    Pages & UI --> Ingestion
+    Ingestion --> Intel
+    Intel --> Ev & Reas & Graph & Camp
+    Ev & Reas & Graph & Camp --> Infra
+```
+
+See [ARCH-001-System-Architecture.md](docs/architecture/ARCH-001-System-Architecture.md) for the complete engineering blueprints, sequence diagrams, failure-mode matrices, and security models.
+
 
 ## Quick start
 

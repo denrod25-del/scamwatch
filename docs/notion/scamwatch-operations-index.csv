@@ -1,0 +1,15 @@
+Name,Document,Purpose,Owner,Status
+Executive Dashboard,Executive-Dashboard.md,Founder dashboard for overall health and AI operations,Antigravity,Approved
+CTO Dashboard,CTO-Dashboard.md,CTO dashboard for engineering quality and API SLA performance,Antigravity,Approved
+RFC Registry,RFC-Registry.md,Registry of architecture proposals and comments,Antigravity,Approved
+ARB Registry,ARB-Registry.md,Architecture Review Board logs and scoring assessments,Antigravity,Approved
+ADR Registry,ADR-Registry.md,Decisions index from Next.js (ADR-001) to Worker Queue (ADR-010),Antigravity,Approved
+Risk Register,Risk-Register.md,Matrix of engineering risks and automated mitigation strategies,Antigravity,Approved
+Technical Debt,Technical-Debt.md,Backlog tracking of short-term code shortcuts,Antigravity,Approved
+Service Catalog,Service-Catalog.md,Inputs/outputs and failure modes for core domain services,Antigravity,Approved
+API Registry,API-Registry.md,REST endpoints request/response JSON schemas,Antigravity,Approved
+Data Dictionary,Data-Dictionary.md,Supabase tables columns relationships and RLS rules,Antigravity,Approved
+Prompt Registry,Prompt-Registry.md,OpenAI prompt library and fallback behaviors,Antigravity,Approved
+Incident Management,Incident-Management.md,Severity levels runbooks and incident postmortems,Antigravity,Approved
+Release Management,Release-Management.md,Release tags checklist and database rollback guides,Antigravity,Approved
+Documentation Audit,Documentation-Audit.md,Quality assurance checklist verifying cross-links consistency,Antigravity,Approved

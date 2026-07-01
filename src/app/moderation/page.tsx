@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 
-import { requireStaff } from '@/lib/auth/session';
-import { createAdminClient } from '@/lib/supabase/admin';
-import { getModerationQueue } from '@/lib/moderation/queue';
+import { requireStaff } from '@/shared/auth/session';
+import { createAdminClient } from '@/infrastructure/supabase/admin';
+import { getModerationQueue } from '@/shared/moderation/queue';
 import EntityChip from '@/components/ui/EntityChip';
 import type { EntityType } from '@/types';
-import { signOutAction } from '@/lib/auth/actions';
+import { signOutAction } from '@/shared/auth/actions';
 import { approveAction, rejectAction } from './actions';
 
 export const metadata: Metadata = { title: 'Moderation queue', robots: { index: false } };

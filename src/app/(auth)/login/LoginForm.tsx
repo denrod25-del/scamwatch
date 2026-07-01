@@ -2,8 +2,8 @@
 
 import { useActionState } from 'react';
 
-import { sendMagicLink } from '@/lib/auth/actions';
-import type { LoginState } from '@/lib/auth/types';
+import { sendMagicLink } from '@/shared/auth/actions';
+import type { LoginState } from '@/shared/auth/types';
 
 const INITIAL: LoginState = { ok: false };
 
