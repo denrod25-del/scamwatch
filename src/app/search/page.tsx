@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 import SearchBar from '@/components/ui/SearchBar';
 import VerdictCard from '@/components/ui/VerdictCard';
@@ -11,7 +12,7 @@ import { lookup } from '@/shared/search/lookup';
 import { extractEntitiesHybrid } from '@/shared/entities/extractEntitiesHybrid';
 import { generateExplanation } from '@/shared/search/explain';
 import { generateRecommendations } from '@/shared/search/recommend';
-import { THREATS, getRiskBadgeColor, getRiskLabel, getRiskDescription, RiskLevel } from '@/data/threats';
+import { THREATS, getRiskBadgeColor, getRiskLabel, RiskLevel } from '@/data/threats';
 import DataModeBadge from '@/components/ui/DataModeBadge';
 
 export async function generateMetadata({
@@ -37,11 +38,12 @@ export async function generateMetadata({
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; lose_money?: string; share_pii?: string; type?: string }>;
+  searchParams: Promise<{ q?: string; lose_money?: string; share_pii?: string; type?: string; demo?: string }>;
 }): Promise<React.JSX.Element> {
-  const { q, lose_money, share_pii, type } = await searchParams;
+  const { q, lose_money, share_pii, type, demo } = await searchParams;
   const query = (q ?? '').trim();
-  const isDemo = !query;
+  const isDemoMode = demo === 'true' || query === 'sunpass-billing-example[dot]com';
+  const isEmpty = !query;
 
   const loseMoney = lose_money === 'true';
   const sharePii = share_pii === 'true';
@@ -50,9 +52,10 @@ export default async function SearchPage({
   let result = null;
   let explanation = null;
   let recommendations = null;
-  let riskLevel: RiskLevel = 'low';
-  let dataMode = 'demo';
+  let riskLevel: RiskLevel = 'unknown';
+  let dataMode: 'demo' | 'verified' | 'live' = 'live';
   let extracted: { type: string; canonical_value: string }[] = [];
+  let errorMsg = '';
 
   // Determine page guidelines based on mode
   let searchTitle = 'Know Before You Click';
@@ -81,101 +84,162 @@ export default async function SearchPage({
     query.toLowerCase().includes('duke') && t.id === 'FL-002'
   );
 
-  if (!isDemo) {
-    result = await lookup(query);
-    if (result) {
-      explanation = generateExplanation(
-        result.verdict,
-        result.query,
-        result.entityType,
-        result.abstained
-      );
-      recommendations = generateRecommendations(
-        result.verdict,
-        result.entityType,
-        { did_lose_money: loseMoney, did_share_pii: sharePii }
-      );
-      extracted = await extractEntitiesHybrid(query);
+  if (!isEmpty) {
+    if (isDemoMode) {
+      // Provide FL-001 as the default demo scan
+      result = {
+        query: 'sunpass-billing-example[dot]com',
+        entityType: 'url' as const,
+        verdict: 'Confirmed Reported Scam' as const,
+        confidence: 0.95,
+        reportCount: 48,
+        relatedThreats: [{ slug: 'FL-001', title: 'SunPass Toll Text Scam Alert (Smishing)' }],
+        abstained: false,
+      };
+      explanation = {
+        text: 'This domain closely matches verified smishing campaigns impersonating the Florida SunPass toll agency. Senders request payment for fake unpaid toll balances (frequently $4.15) to harvest consumer credit card details.',
+        citations: [
+          { raw_value: 'sunpass-billing-example[dot]com', resolved_label: 'SunPass Smishing Campaign Indicator' }
+        ]
+      };
+      recommendations = {
+        verify: [
+          { action: 'Official SunPass Portal', url: 'https://www.sunpass.com', org: 'SunPass' },
+          { action: 'File FTC Fraud Report', url: 'https://reportfraud.ftc.gov', org: 'FTC' }
+        ],
+        protect: [
+          { step: 'Do not click links in SMS messages from unrecognized senders.', urgency: 'high' as const },
+          { step: 'If you entered payment info, contact your card issuer immediately to freeze your card.', urgency: 'high' as const },
+          { step: 'Forward suspicious texts to carrier spam reporting line (7726).', urgency: 'medium' as const }
+        ]
+      };
+      riskLevel = 'critical';
+      dataMode = 'demo';
+      extracted = [{ type: 'url', canonical_value: 'sunpass-billing-example[dot]com' }];
+    } else {
+      try {
+        result = await lookup(query);
+        if (result) {
+          explanation = generateExplanation(
+            result.verdict,
+            result.query,
+            result.entityType,
+            result.abstained
+          );
+          recommendations = generateRecommendations(
+            result.verdict,
+            result.entityType,
+            { did_lose_money: loseMoney, did_share_pii: sharePii }
+          );
+          extracted = await extractEntitiesHybrid(query);
 
-      // Determine risk level based on verdict
-      if (result.verdict === 'Confirmed Reported Scam' || result.verdict === 'Likely Scam') {
-        riskLevel = 'high';
-      } else if (result.verdict === 'Use Caution') {
-        riskLevel = 'medium';
-      } else {
-        riskLevel = 'low';
-      }
-      dataMode = 'live';
+          // Determine risk level based on verdict
+          if (result.verdict === 'Confirmed Reported Scam' || result.verdict === 'Likely Scam') {
+            riskLevel = 'high';
+          } else if (result.verdict === 'Use Caution') {
+            riskLevel = 'medium';
+          } else {
+            riskLevel = 'low';
+          }
+          dataMode = 'live';
 
-      // Override if query matches a predefined threat
-      if (matchedThreat) {
-        riskLevel = matchedThreat.riskLevel;
-        dataMode = matchedThreat.dataMode;
-        result.reportCount = matchedThreat.communityReports;
-        result.confidence = matchedThreat.confidence / 100;
+          // Override if query matches a predefined threat
+          if (matchedThreat) {
+            riskLevel = matchedThreat.riskLevel;
+            dataMode = matchedThreat.dataMode;
+            result.reportCount = matchedThreat.communityReports;
+            result.confidence = matchedThreat.confidence / 100;
+          }
+        } else {
+          errorMsg = 'We encountered an issue checking this indicator. Please check your query and try again.';
+        }
+      } catch (_err) {
+        errorMsg = 'The Sentinel service is temporarily offline. Please verify this indicator directly with official agencies.';
       }
     }
-  } else {
-    // Provide FL-001 as the default demo scan
-    result = {
-      query: 'sunpass-billing-example[dot]com',
-      entityType: 'url' as const,
-      verdict: 'Confirmed Reported Scam' as const,
-      confidence: 0.95,
-      reportCount: 48,
-      relatedThreats: [{ slug: 'FL-001', title: 'SunPass Toll Text Scam Alert (Smishing)' }],
-      abstained: false,
-    };
-    explanation = {
-      text: 'This domain closely matches verified smishing campaigns impersonating the Florida SunPass toll agency. Senders request payment for fake unpaid toll balances (frequently $4.15) to harvest consumer credit card details.',
-      citations: [
-        { raw_value: 'sunpass-billing-example[dot]com', resolved_label: 'SunPass Smishing Campaign Indicator' }
-      ]
-    };
-    recommendations = {
-      verify: [
-        { action: 'Official SunPass Portal', url: 'https://www.sunpass.com', org: 'SunPass' },
-        { action: 'File FTC Fraud Report', url: 'https://reportfraud.ftc.gov', org: 'FTC' }
-      ],
-      protect: [
-        { step: 'Do not click links in SMS messages from unrecognized senders.', urgency: 'high' as const },
-        { step: 'If you entered payment info, contact your card issuer immediately to freeze your card.', urgency: 'high' as const },
-        { step: 'Forward suspicious texts to carrier spam reporting line (7726).', urgency: 'medium' as const }
-      ]
-    };
-    riskLevel = 'critical';
-    dataMode = 'demo';
-    extracted = [{ type: 'url', canonical_value: 'sunpass-billing-example[dot]com' }];
   }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 space-y-8 print:p-0 print:m-0">
+      {/* 1. Header & Input Bar */}
       <div className="print:hidden space-y-2">
         <h1 className="text-2xl font-bold text-text">{searchTitle}</h1>
         <p className="text-xs text-text-muted leading-relaxed max-w-2xl mb-2">{searchHelperText}</p>
-        <SearchBar defaultValue={query} placeholder={searchPlaceholder} />
+        <SearchBar defaultValue={isDemoMode ? 'sunpass-billing-example[dot]com' : query} placeholder={searchPlaceholder} />
       </div>
 
-      {isDemo && (
-        <div className="p-4 bg-surface border border-border rounded-md space-y-2 print:hidden">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <h2 className="text-sm font-bold text-brand uppercase tracking-wider">Demo Scan Report</h2>
-            <DataModeBadge mode="demo" />
+      {/* 2. Beta Evaluation Mode Banner */}
+      <div className="p-3 bg-brand/10 border border-brand/20 rounded-md text-xs text-text-muted leading-relaxed print:hidden">
+        🛡️ <strong>Beta Evaluation Mode:</strong> ScamWatch can help identify scam indicators, but results are informational and should be verified through official sources. Demo examples may appear when no live scan has been submitted.
+      </div>
+
+      {/* 3. Empty State */}
+      {isEmpty && (
+        <div className="space-y-6">
+          <div className="p-5 bg-surface border border-border rounded-md space-y-4 print:hidden">
+            <h2 className="text-sm font-bold text-text uppercase tracking-wider">Try a simulated demo scan</h2>
+            <p className="text-xs text-text-muted leading-relaxed">
+              Want to see how our threat evaluation templates and checklists work? Run a demo check on a simulated SunPass toll road text scam indicator.
+            </p>
+            <div>
+              <Link
+                href="/search?q=sunpass-billing-example[dot]com&demo=true"
+                className="inline-block rounded bg-brand px-4 py-2 text-xs font-bold text-brand-contrast hover:bg-brand/80"
+              >
+                Evaluate SunPass Smishing Demo
+              </Link>
+            </div>
           </div>
-          <p className="text-xs text-text-muted leading-relaxed">
-            Below is a sample scan report illustrating how the Sentinel Intelligence Engine evaluates a suspicious indicator. Try pasting a link, message, or phone number above to run a live scan.
-          </p>
+
+          {/* What ScamWatch Can and Cannot Do Box (Empty State) */}
+          <section className="panel p-5 space-y-4">
+            <h2 className="text-sm font-bold text-text uppercase tracking-wider">What ScamWatch can and cannot do</h2>
+            <div className="grid gap-4 sm:grid-cols-2 text-xs leading-relaxed">
+              <div className="panel p-4 border-l-2 border-l-safe-border space-y-2">
+                <h3 className="font-semibold text-text">What ScamWatch Can Do</h3>
+                <ul className="list-disc pl-4 space-y-1 text-text-muted">
+                  <li>Flag common scam indicators inside links, phone numbers, and messages.</li>
+                  <li>Explain why something looks suspicious using matched fraud templates.</li>
+                  <li>Suggest safer next steps if you have been targeted.</li>
+                  <li>Point users to official federal and state reporting channels.</li>
+                  <li>Help users pause and verify before clicking or paying.</li>
+                </ul>
+              </div>
+              <div className="panel p-4 border-l-2 border-l-brand space-y-2">
+                <h3 className="font-semibold text-text">What ScamWatch Cannot Do</h3>
+                <ul className="list-disc pl-4 space-y-1 text-text-muted">
+                  <li>Guarantee that any message, website, or phone number is 100% safe.</li>
+                  <li>Recover stolen money or reverse fraudulent card charges.</li>
+                  <li>Replace your bank, police department, lawyer, or government agencies.</li>
+                  <li>Verify every global phone number or domain in real time.</li>
+                  <li>Provide official legal, financial, or law-enforcement advice.</li>
+                </ul>
+              </div>
+            </div>
+          </section>
         </div>
       )}
 
-      {result ? (
+      {/* 4. Error State */}
+      {errorMsg && (
+        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-md text-xs text-red-500 font-semibold print:hidden">
+          ⚠️ {errorMsg}
+        </div>
+      )}
+
+      {/* 5. Results State (Demo or Live) */}
+      {!isEmpty && result && (
         <div className="space-y-8">
-          {/* Safety Advisory Banner */}
-          <div className="p-3 bg-surface border border-border rounded-md text-xs text-text-muted flex items-start gap-2.5 print:hidden">
-            <span className="text-sm">⚠️</span>
-            <p className="leading-relaxed">
-              <strong>Safety Advisory:</strong> ScamWatch can help you spot warning signs, but it cannot guarantee whether something is safe or unsafe. Always verify directly through the official website, phone number, or app before sharing details or money.
-            </p>
+          {/* Scan Origin Label */}
+          <div className="flex items-center justify-between border-b border-border/30 pb-2">
+            <span className="text-xs font-bold text-text uppercase tracking-wider">
+              {isDemoMode ? (
+                <span className="text-amber-500">🧪 Demo example — not based on your submission</span>
+              ) : (
+                <span className="text-emerald-500">🛡️ Based on the message or link you entered</span>
+              )}
+            </span>
+            <DataModeBadge mode={dataMode} />
           </div>
 
           {/* Submitter Context Selectors */}
@@ -275,11 +339,38 @@ export default async function SearchPage({
               <div className="border-t border-border/30 pt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] text-text-subtle font-mono">
                 <span>Confidence: {(result.confidence * 100).toFixed(0)}%</span>
                 <span>Last verified: {matchedThreat ? matchedThreat.lastVerifiedAt : 'July 1, 2026'}</span>
-                <span className="flex items-center gap-1">Data Mode: <DataModeBadge mode={dataMode as any} /></span>
+                <span className="flex items-center gap-1">Data Mode: <DataModeBadge mode={dataMode} /></span>
               </div>
               <p className="border-t border-border/20 pt-2 text-[10px] text-text-subtle leading-relaxed italic">
                 This score is a safety signal, not a guarantee. Always verify directly with the official company or agency before paying, clicking, or sharing personal information.
               </p>
+            </div>
+          </section>
+
+          {/* What ScamWatch Can and Cannot Do Box (Result State) */}
+          <section className="panel p-5 space-y-4">
+            <h2 className="text-sm font-bold text-text uppercase tracking-wider">What ScamWatch can and cannot do</h2>
+            <div className="grid gap-4 sm:grid-cols-2 text-xs leading-relaxed">
+              <div className="panel p-4 border-l-2 border-l-safe-border space-y-2">
+                <h3 className="font-semibold text-text">What ScamWatch Can Do</h3>
+                <ul className="list-disc pl-4 space-y-1 text-text-muted">
+                  <li>Flag common scam indicators inside links, phone numbers, and messages.</li>
+                  <li>Explain why something looks suspicious using matched fraud templates.</li>
+                  <li>Suggest safer next steps if you have been targeted.</li>
+                  <li>Point users to official federal and state reporting channels.</li>
+                  <li>Help users pause and verify before clicking or paying.</li>
+                </ul>
+              </div>
+              <div className="panel p-4 border-l-2 border-l-brand space-y-2">
+                <h3 className="font-semibold text-text">What ScamWatch Cannot Do</h3>
+                <ul className="list-disc pl-4 space-y-1 text-text-muted">
+                  <li>Guarantee that any message, website, or phone number is 100% safe.</li>
+                  <li>Recover stolen money or reverse fraudulent card charges.</li>
+                  <li>Replace your bank, police department, lawyer, or government agencies.</li>
+                  <li>Verify every global phone number or domain in real time.</li>
+                  <li>Provide official legal, financial, or law-enforcement advice.</li>
+                </ul>
+              </div>
             </div>
           </section>
 
@@ -406,11 +497,12 @@ export default async function SearchPage({
           <div className="print:hidden">
             <VerificationCallout />
           </div>
+
+          {/* Non-Affiliation Disclaimer */}
+          <p className="text-[10px] text-text-subtle leading-relaxed border-t border-border/20 pt-4 print:hidden">
+            Disclaimer: ScamWatch is not affiliated with SunPass, Duke Energy, FTC, FBI, IC3, the Florida Attorney General, UPS, FedEx, USPS, or any government agency or utility company mentioned above. Always verify through official websites or phone numbers from your bill, card, statement, or agency website.
+          </p>
         </div>
-      ) : (
-        <p className="mt-8 text-text-muted">
-          Enter a link, phone number, email, or message to check it.
-        </p>
       )}
     </div>
   );

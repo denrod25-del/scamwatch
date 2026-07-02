@@ -1,4 +1,4 @@
-export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
+export type RiskLevel = 'unknown' | 'low' | 'medium' | 'high' | 'critical';
 
 export type DataMode = 'demo' | 'verified' | 'live';
 
@@ -177,6 +177,7 @@ export function getRiskLabel(riskLevel: RiskLevel): string {
     case 'medium': return 'Medium Risk';
     case 'high': return 'High Risk';
     case 'critical': return 'Critical Risk';
+    case 'unknown':
     default: return 'Unknown Risk';
   }
 }
@@ -187,6 +188,7 @@ export function getRiskBadgeColor(riskLevel: RiskLevel): string {
     case 'medium': return 'bg-amber-500/10 text-amber-500 border-amber-500/30';
     case 'high': return 'bg-red-500/10 text-red-500 border-red-500/30';
     case 'critical': return 'bg-red-700/10 text-red-700 border-red-700/30 font-extrabold';
+    case 'unknown':
     default: return 'bg-border/10 text-text-subtle border-border/30';
   }
 }
@@ -196,12 +198,13 @@ export function getRiskDescription(riskLevel: RiskLevel): string {
     case 'low':
       return 'No active campaigns or threat indicators matching this signature have been identified. Exercise normal vigilance.';
     case 'medium':
-      return 'Potential threat indicators matching this signature have been identified, but are not verified to be widespread.';
+      return 'Potential threat indicators matching this signature have been identified, requiring cautious independent verification.';
     case 'high':
-      return 'Matches verified active campaigns with high threat indicators, such as immediate shutoff notices or impersonation of trusted entities.';
+      return 'Active impersonation campaigns identified with verified warnings from utilities or official registries. Extreme caution advised.';
     case 'critical':
-      return 'Widespread active smishing or phishing campaign targeting numerous citizens with high risk of financial theft or driver license issues.';
+      return 'Widespread active campaigns targeting critical infrastructure, financial access, or state portals with severe risks of immediate loss.';
+    case 'unknown':
     default:
-      return 'No risk level profile available.';
+      return 'Insufficient signal to classify risk. Treat with caution and verify independently.';
   }
 }

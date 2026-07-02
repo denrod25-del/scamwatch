@@ -150,7 +150,7 @@ export default function ReportWizard(): React.JSX.Element {
             className="mt-1 block w-full text-sm"
           />
           <p className="mt-2 text-xs text-text-subtle">
-            Stored privately. Screenshot metadata (like location details) is automatically stripped.
+            When users upload screenshots, ScamWatch strips hidden EXIF metadata before storage or review when technically possible.
           </p>
         </ReportWizardStep>
       </div>

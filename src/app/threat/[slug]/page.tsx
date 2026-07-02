@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { THREATS, getRiskBadgeColor, getRiskLabel, getRiskDescription, Threat } from '@/data/threats';
+import { THREATS, getRiskBadgeColor, getRiskLabel, getRiskDescription } from '@/data/threats';
 import DataModeBadge from '@/components/ui/DataModeBadge';
 
 export async function generateMetadata({
@@ -233,6 +233,11 @@ export default async function ThreatPage({
             ))}
           </div>
         </section>
+
+        {/* Non-Affiliation Disclaimer */}
+        <p className="text-[10px] text-text-subtle leading-relaxed border-t border-border/20 pt-4">
+          Disclaimer: ScamWatch is not affiliated with SunPass, Duke Energy, FTC, FBI, IC3, the Florida Attorney General, UPS, FedEx, USPS, or any government agency or utility company mentioned above. Always verify through official websites or phone numbers from your bill, card, statement, or agency website.
+        </p>
 
         {/* Report This Campaign CTA */}
         <section className="panel p-6 bg-surface border border-border/60 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

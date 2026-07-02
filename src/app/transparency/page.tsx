@@ -1,7 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import DataModeBadge from '@/components/ui/DataModeBadge';
 
 export const metadata: Metadata = {
   title: 'Trust & Transparency — ScamWatch',
@@ -101,7 +100,7 @@ export default function TrustCenterPage(): React.JSX.Element {
             <div className="panel p-4 space-y-2 border-l-2 border-l-safe-border">
               <h3 className="font-semibold text-text">What ScamWatch Can Do</h3>
               <ul className="list-disc pl-4 space-y-1 text-text-muted">
-                <li>Strip EXIF metadata (hidden photo details, like location/device information) from uploaded screenshots.</li>
+                <li>When users upload screenshots, ScamWatch strips hidden EXIF metadata before storage or review when technically possible.</li>
                 <li>Extract links/numbers to check against abuse databases.</li>
                 <li>De-identify text narratives to remove PII.</li>
                 <li>Guide users directly to official reporting routes.</li>

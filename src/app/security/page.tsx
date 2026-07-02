@@ -47,7 +47,7 @@ export default function SecurityPage(): React.JSX.Element {
         <section className="space-y-2">
           <h2 className="text-base font-semibold text-text">3. Data Handling &amp; Stripping</h2>
           <p className="text-xs text-text-muted leading-relaxed">
-            ScamWatch is built to protect your identity. All uploaded text is checked on the client and server to strip personal identifiers (such as SSNs, credit card numbers, or passwords) before saving. Uploaded screenshot files have their EXIF metadata (including location and device details) stripped in-place during pipeline processing.
+            ScamWatch is built to protect your identity. All uploaded text is checked on the client and server to strip personal identifiers (such as SSNs, credit card numbers, or passwords) before saving. When users upload screenshots, ScamWatch strips hidden EXIF metadata before storage or review when technically possible.
           </p>
         </section>
 

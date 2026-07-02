@@ -118,6 +118,74 @@ export default function HomePage(): React.JSX.Element {
         ))}
       </section>
 
+      {/* EMERGENCY RESOURCE CTAS */}
+      <section className="space-y-4">
+        <h2 className="font-display text-sm font-bold uppercase tracking-[0.2em] text-text">
+          Already clicked or paid? Start here.
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="panel p-5 flex flex-col justify-between border-l-2 border-l-brand space-y-3">
+            <div>
+              <h3 className="font-semibold text-text text-sm">I clicked a suspicious link</h3>
+              <p className="mt-1 text-xs text-text-muted leading-relaxed">
+                Learn immediate steps to secure your browser, disconnect from shared sessions, and audit device logins.
+              </p>
+            </div>
+            <Link
+              href="/academy/what-if-clicked"
+              className="inline-block text-xs font-bold underline text-brand hover:text-brand/80"
+            >
+              Link Rescue Guide →
+            </Link>
+          </div>
+
+          <div className="panel p-5 flex flex-col justify-between border-l-2 border-l-brand space-y-3">
+            <div>
+              <h3 className="font-semibold text-text text-sm">I sent money</h3>
+              <p className="mt-1 text-xs text-text-muted leading-relaxed">
+                Find contact details for payment processors, gift card issuers, wire transfer agencies, and banks to trace funds.
+              </p>
+            </div>
+            <Link
+              href="/academy/how-to-report"
+              className="inline-block text-xs font-bold underline text-brand hover:text-brand/80"
+            >
+              Fund Recovery Steps →
+            </Link>
+          </div>
+
+          <div className="panel p-5 flex flex-col justify-between border-l-2 border-l-brand space-y-3">
+            <div>
+              <h3 className="font-semibold text-text text-sm">I shared a card, password, or SSN</h3>
+              <p className="mt-1 text-xs text-text-muted leading-relaxed">
+                Step-by-step reporting guide to initiate freezes with credit bureaus, file official reports, and replace details.
+              </p>
+            </div>
+            <Link
+              href="/report"
+              className="inline-block text-xs font-bold underline text-brand hover:text-brand/80"
+            >
+              Secure My Accounts →
+            </Link>
+          </div>
+
+          <div className="panel p-5 flex flex-col justify-between border-l-2 border-l-brand space-y-3">
+            <div>
+              <h3 className="font-semibold text-text text-sm">I want to help a relative</h3>
+              <p className="mt-1 text-xs text-text-muted leading-relaxed">
+                Simple tools and checklists designed to help elder family members check messages and verify sender legitimacy.
+              </p>
+            </div>
+            <Link
+              href="/search"
+              className="inline-block text-xs font-bold underline text-brand hover:text-brand/80"
+            >
+              Check an Indicator →
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* 4. COMMUNITY STATISTICS BAND */}
       <section className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">

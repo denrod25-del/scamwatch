@@ -36,7 +36,7 @@ export default function PrivacyPage(): React.JSX.Element {
         <div>
           <h2 className="text-sm font-semibold text-text mb-1">2. Screenshot &amp; EXIF Metadata Stripping</h2>
           <p>
-            When you upload a screenshot, our pipeline automatically strips all Exchangeable Image File (EXIF) tags—including GPS coordinates, device models, and creation timestamps—before storing the image file.
+            When users upload screenshots, ScamWatch strips hidden EXIF metadata before storage or review when technically possible.
           </p>
         </div>
 

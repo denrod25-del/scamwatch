@@ -1,50 +1,61 @@
 import React from 'react';
-import Link from 'next/link';
+import AcademyArticleLayout from '@/components/layout/AcademyArticleLayout';
 
-export default function TrafficTicketsAcademy(): React.JSX.Element {
+export default function TrafficTicketsAcademyPage(): React.JSX.Element {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10 space-y-6">
-      <div>
-        <Link href="/academy" className="text-xs font-semibold underline text-brand hover:text-brand/80">
-          ← Back to Academy
-        </Link>
-      </div>
+    <AcademyArticleLayout
+      title="Traffic Ticket &amp; Citation Scams"
+      description="Unsolicited warnings asserting that you have unpaid red-light camera citations or speed trap violations."
+      lastUpdated="July 2, 2026"
+      seniorSummary="Official Florida traffic tickets are always sent by mail from the local clerk of courts, never by text message or email. If you receive an urgent text claiming you owe money for a speeding ticket or red-light camera, delete it immediately."
+      dos={[
+        "Ignore text and email demands for traffic ticket payments.",
+        "Verify citations directly on the official Florida Clerk of Courts website.",
+        "Use the official citation number to search court records."
+      ]}
+      donts={[
+        "Do not enter driver's license numbers on unverified websites.",
+        "Do not pay traffic fines via wire transfer, gift cards, or crypto.",
+        "Do not open attachments on emails claiming to be citations."
+      ]}
+      faqs={[
+        {
+          q: "How are legitimate citations sent?",
+          a: "Legitimate traffic citations are delivered via physical mail through the US Postal Service and will direct you to pay through your local county clerk of courts portal."
+        },
+        {
+          q: "What if I actually had a speeding ticket recently?",
+          a: "Always look up your driver's license or citation number on your local county's official clerk of courts website to check for outstanding court actions."
+        }
+      ]}
+      verificationLinks={[
+        { label: "Florida Highway Safety and Motor Vehicles", url: "https://www.flhsmv.gov" },
+        { label: "Florida Clerk of Courts Directory", url: "https://flclerks.com" }
+      ]}
+      reportingLinks={[
+        { label: "FTC Fraud Report", url: "https://reportfraud.ftc.gov" },
+        { label: "Florida Attorney General Portal", url: "https://myfloridalegal.com" }
+      ]}
+      shareText="Hi there! Just wanted to share a quick warning: scammers are sending text messages about fake traffic tickets or speeding citations in Florida. If you get one, it's a scam. Legitimate tickets always arrive in the mail, never by text. Let's make sure our family doesn't get tricked!"
+    >
+      <section className="space-y-2">
+        <h2 className="text-base font-semibold text-text">How It Works</h2>
+        <p>
+          Scammers send automated text messages or emails claiming you have an unpaid traffic citation, parking ticket, or red-light camera violation. They warn you that failure to pay the fine immediately will result in a driver's license suspension, vehicle registration hold, or legal prosecution.
+        </p>
+        <p>
+          The message includes a link to a fake &ldquo;Florida Citation Portal&rdquo; that asks you to enter your credit card number, date of birth, and driver's license number. Once entered, the scammers use these details to steal your identity and money.
+        </p>
+      </section>
 
-      <article className="space-y-6">
-        <header className="space-y-2">
-          <h1 className="font-display text-3xl font-bold uppercase tracking-tight text-text">
-            Fake DMV &amp; Traffic Ticket Scams
-          </h1>
-          <p className="text-sm text-text-muted leading-relaxed">
-            Scammers send text notifications claiming you have an outstanding speeding ticket or DMV fee.
-          </p>
-        </header>
-
-        <hr className="border-border" />
-
-        <section className="space-y-2 text-xs text-text-muted leading-relaxed">
-          <h2 className="text-base font-semibold text-text">How It Works</h2>
-          <p>
-            An SMS claiming to be from the DMV or a local municipal traffic court warns of an outstanding citation. The message asserts your vehicle registration is about to be suspended. It includes a link to resolve the citation by paying a fine.
-          </p>
-        </section>
-
-        <section className="space-y-2 text-xs text-text-muted leading-relaxed">
-          <h2 className="text-base font-semibold text-text">Key Indicators</h2>
-          <ul className="list-disc pl-5 space-y-1">
-            <li><strong>Out-of-State Senders:</strong> Messages often originate from numbers with area codes far outside Florida.</li>
-            <li><strong>Official Citation Numbers Missing:</strong> The message does not list your actual license plate or citation number.</li>
-            <li><strong>Non-Government Domains:</strong> Official Florida DMV websites always end in <code>.gov</code> (such as <code>flhsmv.gov</code>).</li>
-          </ul>
-        </section>
-
-        <section className="space-y-2 text-xs text-text-muted leading-relaxed">
-          <h2 className="text-base font-semibold text-text">What to Do</h2>
-          <p>
-            Do not pay fines via links sent in SMS messages. Visit the official Florida Highway Safety and Motor Vehicles portal directly at <strong>flhsmv.gov</strong> to query your driver license status.
-          </p>
-        </section>
-      </article>
-    </div>
+      <section className="space-y-2">
+        <h2 className="text-base font-semibold text-text">Key Indicators</h2>
+        <ul className="list-disc pl-5 space-y-1">
+          <li><strong>Text Notification:</strong> Florida courts never notify citizens of citations or fines via SMS text.</li>
+          <li><strong>Generic Web Portals:</strong> Link addresses that use suspicious domains like <code>florida-citations-processing.com</code> instead of the official county clerk site.</li>
+          <li><strong>No County Specified:</strong> Failure to specify which county sheriff or police department issued the ticket.</li>
+        </ul>
+      </section>
+    </AcademyArticleLayout>
   );
 }
