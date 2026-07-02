@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import SearchBar from '@/components/ui/SearchBar';
 import ScannerVisual from '@/components/ui/ScannerVisual';
+import { THREATS, getRiskBadgeColor, getRiskLabel } from '@/data/threats';
+import DataModeBadge from '@/components/ui/DataModeBadge';
 
 export const metadata: Metadata = {
   title: 'ScamWatch — Know Before You Click',
@@ -16,26 +18,18 @@ const STATS = [
   { k: '100% Free', v: 'Core public-benefit education' },
 ] as const;
 
-const FLORIDA_ALERTS = [
-  {
-    id: 'FL-001',
-    title: 'SunPass Text Scam (Smishing)',
-    desc: 'Fraudulent texts claiming unpaid toll fees via look-alike links (e.g. sunpass-toll-fees.com).',
-    urgency: 'high',
-  },
-  {
-    id: 'FL-002',
-    title: 'Duke Energy Payment Call',
-    desc: 'Impersonators threatening power disconnection within 30 minutes if gift cards are not provided.',
-    urgency: 'high',
-  },
-] as const;
-
 const CATEGORIES = [
   { slug: 'url', title: 'URL Check', desc: 'Verify redirect domains and look-alike phish links.' },
   { slug: 'phone', title: 'Phone Verification', desc: 'Identify known spoof caller accounts and smish senders.' },
   { slug: 'email', title: 'Email Inspection', desc: 'Check sender domain reputations and BEC spoofing flags.' },
 ] as const;
+
+const BORDER_COLORS = {
+  critical: 'border-l-red-700',
+  high: 'border-l-red-500',
+  medium: 'border-l-amber-500',
+  low: 'border-l-emerald-500',
+};
 
 export default function HomePage(): React.JSX.Element {
   return (
@@ -83,23 +77,21 @@ export default function HomePage(): React.JSX.Element {
           </span>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
-          {FLORIDA_ALERTS.map((alert) => (
+          {THREATS.map((threat) => (
             <div
-              key={alert.id}
-              className={`panel p-5 border-l-4 ${
-                alert.urgency === 'high' ? 'border-l-safe-border' : 'border-l-brand'
-              }`}
+              key={threat.id}
+              className={`panel p-5 border-l-4 ${BORDER_COLORS[threat.riskLevel]}`}
             >
-              <div className="flex items-center justify-between">
-                <span className="font-display text-base font-semibold text-text">{alert.title}</span>
-                <span className="badge-pill bg-safe/10 text-safe text-[0.65rem] uppercase tracking-wider">
-                  {alert.urgency} risk
+              <div className="flex items-start justify-between gap-2">
+                <span className="font-display text-base font-semibold text-text">{threat.title}</span>
+                <span className={`badge-pill text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 border ${getRiskBadgeColor(threat.riskLevel)}`}>
+                  {getRiskLabel(threat.riskLevel)}
                 </span>
               </div>
-              <p className="mt-2 text-sm text-text-muted">{alert.desc}</p>
-              <div className="mt-4 flex items-center justify-between text-xs text-text-subtle">
-                <span>Alert ID: {alert.id}</span>
-                <Link href={`/threat/${alert.id}`} className="underline hover:text-brand">
+              <p className="mt-2 text-xs text-text-muted leading-relaxed">{threat.summary}</p>
+              <div className="mt-4 flex items-center justify-between text-[10px] font-mono text-text-subtle">
+                <span>Alert ID: {threat.id}</span>
+                <Link href={`/threat/${threat.slug}`} className="underline hover:text-brand">
                   Analyze Campaign ↗
                 </Link>
               </div>
@@ -127,13 +119,21 @@ export default function HomePage(): React.JSX.Element {
       </section>
 
       {/* 4. COMMUNITY STATISTICS BAND */}
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {STATS.map((s) => (
-          <div key={s.k} className="panel p-5 text-center">
-            <p className="font-display text-3xl font-bold tracking-tight text-brand">{s.k}</p>
-            <p className="mt-1 text-xs text-text-muted">{s.v}</p>
-          </div>
-        ))}
+      <section className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-display text-xs font-bold uppercase tracking-widest text-text-subtle">
+            Community Safety Indicators
+          </h2>
+          <DataModeBadge mode="demo" showDisclaimer={true} />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {STATS.map((s) => (
+            <div key={s.k} className="panel p-5 text-center">
+              <p className="font-display text-3xl font-bold tracking-tight text-brand">{s.k}</p>
+              <p className="mt-1 text-xs text-text-muted">{s.v}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* 5. LOCAL ALERTS & CHECKLIST DOWNLOAD (Epic 9) */}

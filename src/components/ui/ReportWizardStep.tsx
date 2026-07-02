@@ -25,13 +25,13 @@ export default function ReportWizardStep({
 }: ReportWizardStepProps): React.JSX.Element {
   return (
     <section
-      aria-labelledby="wizard-step-title"
+      aria-labelledby={`wizard-step-title-${stepIndex}`}
       className="rounded-lg border border-border bg-surface p-6"
     >
       <p className="text-sm text-text-subtle" aria-live="polite">
         Step {stepIndex} of {totalSteps}
       </p>
-      <h2 id="wizard-step-title" className="mt-1 text-xl font-semibold text-text">
+      <h2 id={`wizard-step-title-${stepIndex}`} className="mt-1 text-xl font-semibold text-text">
         {title}
       </h2>
 

@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 import ReportWizardStep from '@/components/ui/ReportWizardStep';
 import type { SubmitState } from '@/shared/reports/types';
@@ -15,6 +16,8 @@ export default function ReportWizard(): React.JSX.Element {
   const [state, formAction, pending] = useActionState(submitReportAction, INITIAL);
   const [step, setStep] = useState(1);
   const [piiWarning, setPiiWarning] = useState(false);
+  const searchParams = useSearchParams();
+  const threatId = searchParams.get('threat') || '';
 
   if (state.ok) {
     return (
@@ -24,9 +27,8 @@ export default function ReportWizard(): React.JSX.Element {
             <span className="text-xl">✅</span>
             <h2 className="text-lg font-semibold font-display uppercase tracking-wider">Report Safely Received</h2>
           </div>
-          <p className="text-xs text-text-muted">
-            Thank you. Your report ID is <strong className="font-mono text-text">{state.reportId}</strong>. 
-            All submitted content has been de-identified, and screenshot EXIF location tags have been stripped.
+          <p className="text-xs text-text-muted leading-relaxed">
+            Thank you for helping protect others. Your report will be reviewed for scam indicators. If it matches a known campaign, ScamWatch may use de-identified details to improve public warnings. Stored report ID: <strong className="font-mono text-text">{state.reportId}</strong>.
           </p>
           <div className="p-4 bg-background border border-border rounded-md text-xs space-y-2">
             <p className="font-bold uppercase text-text-subtle">Recommended Next Steps:</p>
@@ -58,14 +60,23 @@ export default function ReportWizard(): React.JSX.Element {
 
   return (
     <form action={formAction} className="space-y-4">
-      {/* All fields stay mounted (hidden, not unmounted) so values persist into FormData. */}
-      <div hidden={step !== 1}>
+      {/* Hidden tag if pre-filled via threat URL param */}
+      {threatId && <input type="hidden" name="threat_id" value={threatId} />}
+
+      {/* Step 1 */}
+      <div hidden={step !== 1} aria-hidden={step !== 1}>
         <ReportWizardStep
           stepIndex={1}
           totalSteps={TOTAL}
           title="What happened?"
           onNext={() => setStep(2)}
         >
+          {threatId && (
+            <div className="p-3 bg-brand/10 border border-brand/20 rounded-md text-xs text-text-muted mb-4">
+              🎯 <strong>Campaign Link:</strong> You are reporting an incident related to campaign alert <strong>{threatId}</strong>.
+            </div>
+          )}
+
           <label htmlFor="channel" className="block text-sm font-medium">
             How did they reach you?
           </label>
@@ -73,7 +84,7 @@ export default function ReportWizard(): React.JSX.Element {
             id="channel"
             name="channel"
             defaultValue="sms"
-            className="mt-1 w-full rounded-md border border-border-strong bg-surface px-3 py-2"
+            className="mt-1 w-full rounded-md border border-border-strong bg-surface px-3 py-2 text-text"
           >
             {CHANNELS.map((c) => (
               <option key={c} value={c}>
@@ -83,7 +94,7 @@ export default function ReportWizard(): React.JSX.Element {
           </select>
 
           <label htmlFor="narrative" className="mt-4 block text-sm font-medium">
-            In your words, what happened?
+            In your words, what happened? (You can report anonymously)
           </label>
           <textarea
             id="narrative"
@@ -94,7 +105,7 @@ export default function ReportWizard(): React.JSX.Element {
               const piiRegex = /(\b\d{3}-\d{2}-\d{4}\b)|(\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b)/;
               setPiiWarning(piiRegex.test(text));
             }}
-            className="mt-1 w-full rounded-md border border-border-strong bg-surface px-3 py-2"
+            className="mt-1 w-full rounded-md border border-border-strong bg-surface px-3 py-2 text-text"
             placeholder="Whatever happened, it isn’t your fault. Share as much as you’re comfortable with."
           />
           {piiWarning && (
@@ -102,14 +113,14 @@ export default function ReportWizard(): React.JSX.Element {
               <strong>PII Warning:</strong> We detected what looks like a Social Security Number or Credit Card. While our system de-identifies details automatically before storing, we recommend redacting sensitive numbers.
             </div>
           )}
-          <p className="mt-2 text-sm text-text-subtle">
-            Sensitive numbers like Social Security or card numbers are removed automatically before
-            anything is stored.
+          <p className="mt-2 text-xs text-text-subtle">
+            Sensitive details like names, Social Security numbers, or card numbers are scrubbed automatically before anything is stored.
           </p>
         </ReportWizardStep>
       </div>
 
-      <div hidden={step !== 2}>
+      {/* Step 2 */}
+      <div hidden={step !== 2} aria-hidden={step !== 2}>
         <ReportWizardStep
           stepIndex={2}
           totalSteps={TOTAL}
@@ -124,7 +135,7 @@ export default function ReportWizard(): React.JSX.Element {
             id="indicators"
             name="indicators"
             rows={3}
-            className="mt-1 w-full rounded-md border border-border-strong bg-surface px-3 py-2 font-mono"
+            className="mt-1 w-full rounded-md border border-border-strong bg-surface px-3 py-2 font-mono text-text"
             placeholder={'+1 555 555 0142\npaypa1-secure.com'}
           />
 
@@ -138,38 +149,48 @@ export default function ReportWizard(): React.JSX.Element {
             accept="image/png,image/jpeg,image/webp"
             className="mt-1 block w-full text-sm"
           />
-          <p className="mt-2 text-sm text-text-subtle">
-            Stored privately. Image metadata is stripped during processing.
+          <p className="mt-2 text-xs text-text-subtle">
+            Stored privately. Screenshot metadata (like location details) is automatically stripped.
           </p>
         </ReportWizardStep>
       </div>
 
-      <div hidden={step !== 3}>
+      {/* Step 3 */}
+      <div hidden={step !== 3} aria-hidden={step !== 3}>
         <section
           aria-labelledby="review-title"
-          className="rounded-lg border border-border bg-surface p-6"
+          className="rounded-lg border border-border bg-surface p-6 space-y-4"
         >
-          <p className="text-sm text-text-subtle">Step 3 of {TOTAL}</p>
-          <h2 id="review-title" className="mt-1 text-xl font-semibold text-text">
-            Review &amp; submit
-          </h2>
-           <p className="mt-3 text-text">
-            When you submit, we de-identify the details, look for known scam patterns, and point you
-            to the official organizations that can act on it.
+          <div>
+            <p className="text-xs text-text-subtle" aria-live="polite">Step 3 of {TOTAL}</p>
+            <h2 id="review-title" className="mt-1 text-xl font-semibold text-text">
+              Review &amp; submit
+            </h2>
+          </div>
+          <p className="text-xs text-text-muted leading-relaxed">
+            By submitting, you agree that ScamWatch may use de-identified scam indicators to warn other consumers. We will not publish your name, phone number, email, screenshots, or private account details.
           </p>
-          <div className="mt-3 p-3 bg-amber-500/10 border border-amber-500/20 rounded-md text-xs text-text-muted space-y-1">
+          <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-md text-xs text-text-muted space-y-1">
             <p className="font-bold text-amber-500">⚠️ Sensitive Information Notice</p>
             <p>Please double-check that you have not included full Social Security Numbers (SSN), account passwords, or complete credit/debit card numbers in your narrative or screenshots.</p>
           </div>
-          <p className="mt-3 text-xs text-text-subtle">
-            🔒 <strong>Privacy Commitment:</strong> All uploads are processed securely. Screenshot EXIF/GPS tags are stripped automatically. We never sell personal information.
-          </p>
+          <div className="flex items-start gap-2 pt-2">
+            <input
+              type="checkbox"
+              id="consent"
+              required
+              className="h-4 w-4 mt-0.5 rounded border-border text-brand focus:ring-brand"
+            />
+            <label htmlFor="consent" className="text-xs text-text-muted leading-relaxed cursor-pointer select-none">
+              I understand ScamWatch may use de-identified scam indicators from this report to help warn others.
+            </label>
+          </div>
           {state.error ? (
-            <p role="alert" className="mt-3 text-danger-fg">
+            <p role="alert" className="mt-3 text-danger-fg text-xs font-semibold">
               {state.error}
             </p>
           ) : null}
-          <div className="mt-6 flex justify-between">
+          <div className="mt-6 flex justify-between border-t border-border/20 pt-4">
             <button
               type="button"
               onClick={() => setStep(2)}
@@ -180,7 +201,7 @@ export default function ReportWizard(): React.JSX.Element {
             <button
               type="submit"
               disabled={pending}
-              className="rounded-md bg-brand px-4 py-2 text-sm text-brand-contrast disabled:opacity-50"
+              className="rounded-md bg-brand px-4 py-2 text-sm text-brand-contrast disabled:opacity-50 font-bold"
             >
               {pending ? 'Submitting…' : 'Submit report'}
             </button>

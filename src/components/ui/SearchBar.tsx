@@ -3,6 +3,7 @@ export interface SearchBarProps {
   action?: string;
   defaultValue?: string;
   autoFocus?: boolean;
+  placeholder?: string;
 }
 
 /**
@@ -13,6 +14,7 @@ export default function SearchBar({
   action = '/search',
   defaultValue,
   autoFocus,
+  placeholder = "Paste a link, phone number, email, or message…",
 }: SearchBarProps): React.JSX.Element {
   return (
     <form
@@ -31,7 +33,7 @@ export default function SearchBar({
         inputMode="search"
         defaultValue={defaultValue}
         autoFocus={autoFocus}
-        placeholder="Paste a link, phone number, email, or message…"
+        placeholder={placeholder}
         className="flex-1 rounded-md border border-border-strong bg-surface-muted px-4 py-2.5 font-mono text-base text-text placeholder:font-sans placeholder:text-text-subtle"
       />
       <button

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import React, { Suspense } from 'react';
 
 import ReportWizard from './ReportWizard';
 
@@ -17,7 +18,9 @@ export default function ReportPage(): React.JSX.Element {
         de-identify sensitive details before storing anything.
       </p>
       <div className="mt-6">
-        <ReportWizard />
+        <Suspense fallback={<div className="h-48 animate-pulse rounded-lg bg-surface-muted border border-border" />}>
+          <ReportWizard />
+        </Suspense>
       </div>
     </div>
   );

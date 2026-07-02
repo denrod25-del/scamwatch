@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import React from 'react';
-import AlertBanner from '@/components/ui/AlertBanner';
+import AlertsFeed from './AlertsFeed';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Local Scam Alerts — ScamWatch',
@@ -20,37 +20,16 @@ export default function AlertsPage(): React.JSX.Element {
           Local Scam Alerts
         </h1>
         <p className="mt-2 text-sm text-text-muted leading-relaxed">
-          ScamWatch monitors and catalogs active scam patterns targeting Florida citizens. Our intelligence helps you identify fraudulent text messages, phone calls, utility scams, and phishing attempts before they cause harm.
+          ScamWatch alerts combine public warnings, community reports, and human-reviewed scam indicators. Alerts are informational and should be verified directly with the official agency or company.
         </p>
       </div>
 
       <hr className="border-border" />
 
-      {/* 2. Current Alert Examples */}
-      <section className="space-y-4">
-        <h2 className="font-display text-lg font-bold uppercase tracking-wider text-text">
-          Active Threat Alerts
-        </h2>
-        <div className="space-y-4">
-          <AlertBanner tone="danger" title="Active: SunPass Toll Text Scam (Smishing)">
-            Fraudulent text messages claiming you have an unpaid toll balance (often $4.15). Senders threaten late fees or license suspension to trick you into entering your credit card details on look-alike websites.
-            <div className="mt-2">
-              <Link href="/threat/FL-001" className="text-xs font-semibold underline hover:text-brand-contrast">
-                Analyze Campaign Vectors →
-              </Link>
-            </div>
-          </AlertBanner>
+      {/* 2. Interactive Alerts Feed */}
+      <AlertsFeed />
 
-          <AlertBanner tone="danger" title="Active: Duke Energy Disconnection Calls">
-            Scammers call claiming your Duke Energy electric bill is overdue, threatening power cutoffs within 30 minutes if you do not buy and pay via prepaid gift cards.
-            <div className="mt-2">
-              <Link href="/threat/FL-002" className="text-xs font-semibold underline hover:text-brand-contrast">
-                Analyze Campaign Vectors →
-              </Link>
-            </div>
-          </AlertBanner>
-        </div>
-      </section>
+      <hr className="border-border" />
 
       {/* 3. Verification & Action Guidelines */}
       <section className="grid gap-6 md:grid-cols-2">

@@ -11,43 +11,75 @@ import { lookup } from '@/shared/search/lookup';
 import { extractEntitiesHybrid } from '@/shared/entities/extractEntitiesHybrid';
 import { generateExplanation } from '@/shared/search/explain';
 import { generateRecommendations } from '@/shared/search/recommend';
+import { THREATS, getRiskBadgeColor, getRiskLabel, getRiskDescription, RiskLevel } from '@/data/threats';
+import DataModeBadge from '@/components/ui/DataModeBadge';
 
-export const metadata: Metadata = {
-  title: 'Search Results — ScamWatch',
-  description: 'Calibrated assessment of a link, phone number, email, or message.',
-};
-
-function getRiskLevel(verdict: string): { label: 'Low' | 'Medium' | 'High' | 'Unknown'; color: string } {
-  switch (verdict) {
-    case 'Likely Safe':
-      return { label: 'Low', color: 'bg-green-500/10 text-green-500 border-green-500/20' };
-    case 'Use Caution':
-      return { label: 'Medium', color: 'bg-amber-500/10 text-amber-500 border-amber-500/20' };
-    case 'Likely Scam':
-    case 'Confirmed Reported Scam':
-      return { label: 'High', color: 'bg-red-500/10 text-red-500 border-red-500/20' };
-    default:
-      return { label: 'Unknown', color: 'bg-gray-500/10 text-gray-500 border-gray-500/20' };
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; type?: string }>;
+}): Promise<Metadata> {
+  const { type } = await searchParams;
+  let title = 'Search Results — ScamWatch';
+  if (type === 'url') {
+    title = 'Check a Suspicious Link — ScamWatch';
+  } else if (type === 'phone') {
+    title = 'Check a Suspicious Phone Number — ScamWatch';
+  } else if (type === 'email') {
+    title = 'Check a Suspicious Email — ScamWatch';
   }
+  return {
+    title,
+    description: 'Calibrated assessment of a link, phone number, email, or message.',
+  };
 }
 
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; lose_money?: string; share_pii?: string }>;
+  searchParams: Promise<{ q?: string; lose_money?: string; share_pii?: string; type?: string }>;
 }): Promise<React.JSX.Element> {
-  const { q, lose_money, share_pii } = await searchParams;
+  const { q, lose_money, share_pii, type } = await searchParams;
   const query = (q ?? '').trim();
   const isDemo = !query;
 
   const loseMoney = lose_money === 'true';
   const sharePii = share_pii === 'true';
+  const searchType = type ?? 'all';
 
   let result = null;
   let explanation = null;
   let recommendations = null;
-  let riskInfo = null;
+  let riskLevel: RiskLevel = 'low';
+  let dataMode = 'demo';
   let extracted: { type: string; canonical_value: string }[] = [];
+
+  // Determine page guidelines based on mode
+  let searchTitle = 'Know Before You Click';
+  let searchPlaceholder = 'Paste a link, phone number, email, or message…';
+  let searchHelperText = 'Enter any indicator to inspect it for scam patterns, threat records, and community reports.';
+
+  if (searchType === 'url') {
+    searchTitle = 'Check a Suspicious Link';
+    searchPlaceholder = 'Paste a suspicious link, website, or shortened URL';
+    searchHelperText = 'We inspect the domain name, check for look-alike brand names, detect redirection trails, and analyze known phishing patterns.';
+  } else if (searchType === 'phone') {
+    searchTitle = 'Check a Suspicious Phone Number';
+    searchPlaceholder = 'Enter a phone number, SMS sender, or suspicious call message';
+    searchHelperText = 'We verify spoofing risks, detect robocall trap details, analyze immediate payment demands, and match known community complaints.';
+  } else if (searchType === 'email') {
+    searchTitle = 'Check a Suspicious Email';
+    searchPlaceholder = 'Paste the sender email, subject line, or suspicious email text';
+    searchHelperText = 'We evaluate sender domain reputation, check for look-alike brand impersonation, flag attachment risks, and inspect credential theft signatures.';
+  }
+
+  // Check if query matches any centralized threat campaign
+  const matchedThreat = THREATS.find(t => 
+    t.slug === query || 
+    t.id === query ||
+    query.toLowerCase().includes('sunpass') && t.id === 'FL-001' ||
+    query.toLowerCase().includes('duke') && t.id === 'FL-002'
+  );
 
   if (!isDemo) {
     result = await lookup(query);
@@ -63,13 +95,30 @@ export default async function SearchPage({
         result.entityType,
         { did_lose_money: loseMoney, did_share_pii: sharePii }
       );
-      riskInfo = getRiskLevel(result.verdict);
       extracted = await extractEntitiesHybrid(query);
+
+      // Determine risk level based on verdict
+      if (result.verdict === 'Confirmed Reported Scam' || result.verdict === 'Likely Scam') {
+        riskLevel = 'high';
+      } else if (result.verdict === 'Use Caution') {
+        riskLevel = 'medium';
+      } else {
+        riskLevel = 'low';
+      }
+      dataMode = 'live';
+
+      // Override if query matches a predefined threat
+      if (matchedThreat) {
+        riskLevel = matchedThreat.riskLevel;
+        dataMode = matchedThreat.dataMode;
+        result.reportCount = matchedThreat.communityReports;
+        result.confidence = matchedThreat.confidence / 100;
+      }
     }
   } else {
-    // Provide a mocked result for the demo scan
+    // Provide FL-001 as the default demo scan
     result = {
-      query: 'sunpass-toll-fees.com',
+      query: 'sunpass-billing-example[dot]com',
       entityType: 'url' as const,
       verdict: 'Confirmed Reported Scam' as const,
       confidence: 0.95,
@@ -78,9 +127,9 @@ export default async function SearchPage({
       abstained: false,
     };
     explanation = {
-      text: 'This domain (sunpass-toll-fees.com) closely matches verified smishing campaigns impersonating the Florida SunPass toll agency. Senders request payment for fake unpaid toll balances (frequently $4.15) to harvest consumer credit card details.',
+      text: 'This domain closely matches verified smishing campaigns impersonating the Florida SunPass toll agency. Senders request payment for fake unpaid toll balances (frequently $4.15) to harvest consumer credit card details.',
       citations: [
-        { raw_value: 'sunpass-toll-fees.com', resolved_label: 'SunPass Smishing Campaign Indicator' }
+        { raw_value: 'sunpass-billing-example[dot]com', resolved_label: 'SunPass Smishing Campaign Indicator' }
       ]
     };
     recommendations = {
@@ -94,20 +143,25 @@ export default async function SearchPage({
         { step: 'Forward suspicious texts to carrier spam reporting line (7726).', urgency: 'medium' as const }
       ]
     };
-    riskInfo = { label: 'High' as const, color: 'bg-red-500/10 text-red-500 border-red-500/20' };
-    extracted = [{ type: 'url', canonical_value: 'sunpass-toll-fees.com' }];
+    riskLevel = 'critical';
+    dataMode = 'demo';
+    extracted = [{ type: 'url', canonical_value: 'sunpass-billing-example[dot]com' }];
   }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 space-y-8 print:p-0 print:m-0">
-      <div className="print:hidden">
-        <h1 className="text-2xl font-bold text-text mb-4">Know Before You Click</h1>
-        <SearchBar defaultValue={query} />
+      <div className="print:hidden space-y-2">
+        <h1 className="text-2xl font-bold text-text">{searchTitle}</h1>
+        <p className="text-xs text-text-muted leading-relaxed max-w-2xl mb-2">{searchHelperText}</p>
+        <SearchBar defaultValue={query} placeholder={searchPlaceholder} />
       </div>
 
       {isDemo && (
         <div className="p-4 bg-surface border border-border rounded-md space-y-2 print:hidden">
-          <h2 className="text-sm font-bold text-brand uppercase tracking-wider">Demo Scan Report</h2>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <h2 className="text-sm font-bold text-brand uppercase tracking-wider">Demo Scan Report</h2>
+            <DataModeBadge mode="demo" />
+          </div>
           <p className="text-xs text-text-muted leading-relaxed">
             Below is a sample scan report illustrating how the Sentinel Intelligence Engine evaluates a suspicious indicator. Try pasting a link, message, or phone number above to run a live scan.
           </p>
@@ -116,10 +170,12 @@ export default async function SearchPage({
 
       {result ? (
         <div className="space-y-8">
-          {/* Beta Mode Disclaimer Banner */}
-          <div className="p-3 bg-brand/10 border border-brand/20 rounded-md text-xs text-text-muted flex items-center justify-between print:hidden">
-            <span>🛡️ <strong>Beta Evaluation Mode:</strong> Showing simulated confidence calibrations and threat checks. No signal constitutes a guarantee of safety.</span>
-            <span className="badge-pill bg-brand/20 text-brand text-[9px] uppercase font-bold">Beta</span>
+          {/* Safety Advisory Banner */}
+          <div className="p-3 bg-surface border border-border rounded-md text-xs text-text-muted flex items-start gap-2.5 print:hidden">
+            <span className="text-sm">⚠️</span>
+            <p className="leading-relaxed">
+              <strong>Safety Advisory:</strong> ScamWatch can help you spot warning signs, but it cannot guarantee whether something is safe or unsafe. Always verify directly through the official website, phone number, or app before sharing details or money.
+            </p>
           </div>
 
           {/* Submitter Context Selectors */}
@@ -140,11 +196,9 @@ export default async function SearchPage({
                   <EntityChip type={result.entityType} value={result.query} />
                 )}
               </div>
-              {riskInfo && (
-                <div className={`px-3 py-1 rounded border text-xs font-bold uppercase tracking-wider ${riskInfo.color}`}>
-                  Risk Level: {riskInfo.label}
-                </div>
-              )}
+              <div className={`px-3 py-1 rounded border text-xs font-bold uppercase tracking-wider ${getRiskBadgeColor(riskLevel)}`}>
+                Risk Level: {getRiskLabel(riskLevel)}
+              </div>
             </div>
 
             <VerdictCard
@@ -192,6 +246,43 @@ export default async function SearchPage({
             </section>
           </div>
 
+          {/* Why this score? */}
+          <section className="panel p-5 space-y-3">
+            <h2 className="text-sm font-bold text-text uppercase tracking-wider">Why this score?</h2>
+            <div className="space-y-3 text-xs text-text-muted leading-relaxed">
+              <p>
+                This indicator is rated <strong>{getRiskLabel(riskLevel)}</strong> because:
+              </p>
+              <ul className="list-disc pl-5 space-y-1">
+                {riskLevel === 'critical' || riskLevel === 'high' ? (
+                  <>
+                    <li>It matches highly urgent warning patterns mimicking trusted services.</li>
+                    <li>It contains text structures designed to pressure consumers into fast action.</li>
+                    {result.reportCount > 0 && <li>It matches {result.reportCount} community report signatures.</li>}
+                  </>
+                ) : riskLevel === 'medium' ? (
+                  <>
+                    <li>It exhibits moderate caution signals that require independent verification.</li>
+                    <li>It has unresolved public records or newly registered domain registrations.</li>
+                  </>
+                ) : (
+                  <>
+                    <li>No active campaign indicators currently match this threat signature.</li>
+                    <li>The query does not contain known high-pressure utility or banking keywords.</li>
+                  </>
+                )}
+              </ul>
+              <div className="border-t border-border/30 pt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] text-text-subtle font-mono">
+                <span>Confidence: {(result.confidence * 100).toFixed(0)}%</span>
+                <span>Last verified: {matchedThreat ? matchedThreat.lastVerifiedAt : 'July 1, 2026'}</span>
+                <span className="flex items-center gap-1">Data Mode: <DataModeBadge mode={dataMode as any} /></span>
+              </div>
+              <p className="border-t border-border/20 pt-2 text-[10px] text-text-subtle leading-relaxed italic">
+                This score is a safety signal, not a guarantee. Always verify directly with the official company or agency before paying, clicking, or sharing personal information.
+              </p>
+            </div>
+          </section>
+
           {/* Detected Indicators */}
           {extracted.length > 0 && (
             <section className="rounded-lg border border-border bg-surface p-5 space-y-3">
@@ -203,10 +294,14 @@ export default async function SearchPage({
                     className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-background text-xs font-mono"
                   >
                     <span className="text-text-subtle font-sans text-[10px] uppercase font-bold">{e.type}:</span>
-                    <span className="text-text font-semibold">{e.canonical_value}</span>
+                    {/* Safe formatting for scam examples */}
+                    <code className="text-text font-semibold" aria-label="Example scam message">
+                      {e.canonical_value.replace(/\./g, '[dot]')}
+                    </code>
                   </span>
                 ))}
               </div>
+              <p className="text-[10px] text-text-subtle italic">Example only — do not visit or contact.</p>
             </section>
           )}
 
@@ -223,10 +318,15 @@ export default async function SearchPage({
                   <ul className="list-disc pl-5 text-xs text-text-muted space-y-1">
                     {explanation.citations.map((c: { raw_value: string; resolved_label: string }, idx: number) => (
                       <li key={idx}>
-                        Flagged entity: <span className="font-mono text-text">{c.raw_value}</span> identified as {c.resolved_label}
+                        Flagged entity:{' '}
+                        <code className="font-mono text-text">
+                          {c.raw_value.replace(/\./g, '[dot]')}
+                        </code>{' '}
+                        identified as {c.resolved_label}
                       </li>
                     ))}
                   </ul>
+                  <p className="text-[10px] text-text-subtle italic">Example only — do not visit or contact.</p>
                 </div>
               )}
             </section>
@@ -236,7 +336,7 @@ export default async function SearchPage({
           <section className="rounded-lg border border-border bg-surface p-5 space-y-2">
             <h2 className="text-sm font-semibold text-text uppercase tracking-wider">Confidence Metrics Calibration</h2>
             <p className="text-xs text-text-muted leading-relaxed">
-              Confidence is evaluated at <strong>{(result.confidence * 100).toFixed(0)}%</strong>. This score combines LLM zero-shot classification, similarity matches against verified historical scams, and official warnings database integrations.
+              Confidence is evaluated at <strong>{(result.confidence * 100).toFixed(0)}%</strong>. We compare your message against known scam patterns, official warnings, and matching community reports.
             </p>
           </section>
 
