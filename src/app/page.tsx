@@ -27,7 +27,7 @@ const FLORIDA_ALERTS = [
     id: 'FL-002',
     title: 'Duke Energy Payment Call',
     desc: 'Impersonators threatening power disconnection within 30 minutes if gift cards are not provided.',
-    urgency: 'medium',
+    urgency: 'high',
   },
 ] as const;
 

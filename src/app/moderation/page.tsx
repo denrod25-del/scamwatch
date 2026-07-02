@@ -27,7 +27,7 @@ export default async function ModerationPage(): Promise<React.JSX.Element> {
       </div>
       <p className="mt-2 text-sm text-text-subtle">
         Approving publishes the report — its extracted entities become live search signal. Reject
-        anything spammy, abusive, or that names a private individual without evidence (Vol 14/16).
+        anything spammy, abusive, or that contains private individual identifiers without evidence.
       </p>
 
       {queue.length === 0 ? (

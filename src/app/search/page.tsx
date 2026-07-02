@@ -158,6 +158,40 @@ export default async function SearchPage({
             </VerdictCard>
           </div>
 
+          {/* Senior-Friendly Safety Guidance */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <section className="panel p-5 border-l-4 border-l-brand space-y-3">
+              <h2 className="font-display text-sm font-bold uppercase tracking-wider text-text">
+                What to do now
+              </h2>
+              <ul className="list-disc pl-5 text-xs text-text-muted space-y-2 leading-relaxed">
+                <li><strong>Do not click</strong> the link.</li>
+                <li><strong>Do not reply</strong> to the message.</li>
+                <li><strong>Do not enter</strong> passwords, card numbers, or Social Security numbers.</li>
+                <li><strong>Call the official company</strong> using the phone number from its real website or your physical bill.</li>
+                <li><strong>Forward text scams</strong> to <strong>7726</strong> to report them to your carrier.</li>
+                <li><strong>Report the scam</strong> to the official <a href="https://reportfraud.ftc.gov" target="_blank" rel="noopener noreferrer" className="text-brand underline">Federal Trade Commission (FTC)</a>.</li>
+                <li><strong>If you already paid or shared details</strong>, call your bank or credit card issuer immediately to freeze your accounts.</li>
+              </ul>
+            </section>
+
+            <section className="panel p-5 border-l-4 border-l-safe-border flex flex-col justify-between space-y-4">
+              <div className="space-y-2">
+                <h2 className="font-display text-sm font-bold uppercase tracking-wider text-text">
+                  Tell a family member
+                </h2>
+                <p className="text-xs text-text-muted leading-relaxed">
+                  If this message scared you or pressured you to act fast, pause and ask someone you trust before sending money or entering information.
+                </p>
+              </div>
+              <div className="pt-2">
+                <p className="text-[10px] text-text-subtle font-mono uppercase tracking-widest">
+                  🔒 ScamWatch Safety Shield
+                </p>
+              </div>
+            </section>
+          </div>
+
           {/* Detected Indicators */}
           {extracted.length > 0 && (
             <section className="rounded-lg border border-border bg-surface p-5 space-y-3">

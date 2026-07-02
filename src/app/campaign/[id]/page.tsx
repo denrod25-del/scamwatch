@@ -19,8 +19,7 @@ export default async function CampaignPage({
     <article className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="text-2xl font-semibold">Campaign {id}</h1>
       <p className="mt-3 text-text-muted">
-        A correlated cluster of reports and entities believed to share an actor or kit, with a
-        calibrated confidence (Vol 8 campaign detection / Vol 9). Placeholder.
+        A correlated cluster of reports and scam indicators verified to share common threat vectors, infrastructure, or templates. Detailed campaign logs and intelligence updates are published here.
       </p>
     </article>
   );

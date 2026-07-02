@@ -13,7 +13,7 @@ export default function PackageDeliveriesAcademy(): React.JSX.Element {
       <article className="space-y-6">
         <header className="space-y-2">
           <h1 className="font-display text-3xl font-bold uppercase tracking-tight text-text">
-            Package Delivery Scams (IPS/FedEx/USPS)
+            Package Delivery Scams (UPS/FedEx/USPS)
           </h1>
           <p className="text-sm text-text-muted leading-relaxed">
             Fake text messages claiming your shipment is on hold due to incorrect address details or unpaid customs fees.

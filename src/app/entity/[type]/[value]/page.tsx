@@ -26,8 +26,7 @@ export default async function EntityPage({
         <EntityChip type={type as EntityType} value={decoded} />
       </div>
       <p className="mt-4 text-text-muted">
-        Reports, related campaigns, and a calibrated read for this entity will appear here (Vol 5
-        FR-5.4 / Vol 9 Knowledge Graph).
+        Verified reports, related threat campaigns, and calibrated intelligence checks associated with this specific indicator.
       </p>
     </article>
   );
